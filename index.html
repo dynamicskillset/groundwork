@@ -944,42 +944,49 @@ button:focus-visible,
       pipeline: {
         leads: [
           { client: 'Trussell Trust', project: 'Digital strategy review', value: 3200 },
-          { client: 'Locality', project: 'Website audit', value: 1800 },
           { client: 'NCVO', project: 'Content strategy', value: 2700 },
         ],
         proposals: [
           { client: 'Mencap', project: 'Digital transformation', value: 6750 },
+          { client: 'Locality', project: 'Website audit', value: 1800 },
         ],
         active: [
           { client: 'Shelter', project: 'Campaign planning', value: 5400 },
-          { client: 'FareShare', project: 'Impact report', value: 3150 },
           { client: 'Groundwork Trust', project: 'Digital strategy', value: 7200 },
           { client: 'Crisis', project: 'Newsletter strategy', value: 2250 },
         ],
-        invoiced: [],
-        paid: [],
+        invoiced: [
+          { client: 'FareShare', project: 'Impact report', value: 3150, notes: 'Invoice sent 4 days ago' },
+        ],
+        paid: [
+          { client: 'Barnardo\'s', project: 'Annual digital strategy', value: 11200 },
+          { client: 'Age UK', project: 'Content audit & campaign', value: 8250 },
+          { client: 'British Heart Foundation', project: 'Impact report', value: 7200 },
+          { client: 'Macmillan', project: 'Social media strategy', value: 6750 },
+          { client: 'Samaritans', project: 'Newsletter setup', value: 4800 },
+        ],
       },
 
       income: {
         months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        actuals: [4200, 6300, 5400, 7650, 3150, 5850, 4500, 6750, 0, 0, 0, 0],
+        actuals: [3200, 5400, 7650, 4800, 3150, 5400, 4500, 4100, 0, 0, 0, 0],
       },
 
       capacity: {
         weekHours: 35,
-        loggedHours: 28,
+        loggedHours: 22,
         byClient: [
           { client: 'Groundwork Trust', hours: 10 },
           { client: 'Shelter', hours: 8 },
-          { client: 'FareShare', hours: 6 },
           { client: 'Crisis', hours: 4 },
         ],
       },
 
       actions: [
         { text: 'Send proposal to Mencap — discovery call was 3 days ago', tag: 'Proposal', urgency: 'urgent' },
+        { text: 'Chase FareShare payment — invoice sent 4 days ago, no confirmation yet', tag: 'Invoice', urgency: 'amber' },
         { text: 'Check in with Groundwork Trust — project at 80% complete', tag: 'Client', urgency: 'normal' },
-        { text: 'Prepare for NCVO scoping call — confirm agenda and send brief', tag: 'Lead', urgency: 'amber' },
+        { text: 'Prepare for NCVO scoping call — confirm agenda and send brief', tag: 'Lead', urgency: 'normal' },
       ],
     };
 
@@ -2045,7 +2052,7 @@ button:focus-visible,
     function renderHeader() {
       const { name, role, annualTarget, ytdIncome } = DATA.freelancer;
       const currency = DATA.freelancer.currency || '£';
-      document.title = `${name} — Groundwork`;
+      document.title = 'Groundwork';
       const pct = DATA.freelancer.annualTarget
         ? Math.min(100, Math.round((ytdIncome / DATA.freelancer.annualTarget) * 100))
         : 0;
