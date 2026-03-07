@@ -1,5 +1,7 @@
 # Groundwork
 
+**[Download the latest version](https://github.com/dynamicskillset/groundwork/releases/latest/download/index.html)**
+
 ![Dashboard screenshot](screenshot.png)
 
 A dashboard for freelancers that lives entirely on your computer. Track your leads, income, time, and to-do list — without subscriptions, accounts, or sending your data anywhere.
