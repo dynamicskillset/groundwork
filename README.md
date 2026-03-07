@@ -2,7 +2,7 @@
 
 ![Dashboard screenshot](screenshot.png)
 
-A personal business dashboard that lives entirely on your computer. Track your leads, income, time, and to-do list — without subscriptions, accounts, or sending your data anywhere.
+Groundwork is a free business dashboard for freelancers. Track your pipeline, income, time, and to-do list — without subscriptions, accounts, or sending your data anywhere. Everything lives on your computer.
 
 ## What it does
 

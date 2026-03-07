@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Private, offline-first freelance business dashboard. Track your pipeline, income, and time — no account required, no data sent anywhere.">
   <title>Groundwork</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,400&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 18'%3E%3Crect x='0' y='12' width='6' height='6' rx='1.5' fill='%23ebcb8b'/%3E%3Crect x='8' y='6' width='6' height='12' rx='1.5' fill='%23ebcb8b'/%3E%3Crect x='16' y='0' width='6' height='18' rx='1.5' fill='%23ebcb8b'/%3E%3C/svg%3E">
   <script>/* Chart.js 4.4.0 — inlined for offline use */
 /**
@@ -49,7 +52,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
       font-size: clamp(14px, 1.4vw, 16px);
@@ -77,7 +80,7 @@
       gap: 20px;
     }
 
-    #pipeline { grid-column: 1 / -1; }
+    #pipeline { grid-column: 1 / -1; padding: 24px 28px; }
 
     section {
       background: var(--surface);
@@ -311,7 +314,7 @@
     .action-text { font-size: 13px; }
     .action-tag {
       display: inline-block;
-      font-size: 11px;
+      font-size: 12px;
       background: var(--teal-light);
       color: var(--teal);
       border-radius: 3px;
@@ -387,7 +390,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 11px;
+      font-size: 12px;
       color: var(--muted);
     }
     .chat-footer button {
@@ -395,7 +398,7 @@
       border: none;
       color: var(--muted);
       cursor: pointer;
-      font-size: 11px;
+      font-size: 12px;
       padding: 4px 2px;
       min-height: 44px;
       text-decoration: underline;
@@ -461,7 +464,7 @@
       align-items: center;
       padding: 3px 10px;
       border-radius: 20px;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -539,7 +542,7 @@
       font-size: 13px; font-family: inherit;
       background: var(--bg); color: var(--text);
     }
-    .provider-saved { font-size: 11px; color: var(--teal); margin-top: 6px; }
+    .provider-saved { font-size: 12px; color: var(--teal); margin-top: 6px; }
 
     /* Onboarding modal steps */
     .onboarding-steps {
@@ -692,33 +695,41 @@ section.panel-drag-over { outline: 2px dashed var(--teal); }
 .settings-section { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
 .settings-section-header {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 12px 16px; cursor: pointer; font-size: 14px; font-weight: 600;
-  background: var(--surface); user-select: none;
+  width: 100%; padding: 12px 16px; cursor: pointer; font-size: 14px; font-weight: 600;
+  background: var(--surface); border: none; color: var(--text); text-align: left;
+  font-family: inherit; user-select: none;
 }
 .settings-section-header:hover { background: var(--bg); }
 .settings-section-header:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
 .settings-chevron { font-size: 12px; color: var(--muted); transition: transform 0.15s; }
 .settings-section.open .settings-chevron { transform: rotate(90deg); }
 .settings-section-body {
-  max-height: 0;
-  overflow: hidden;
-  padding: 0 16px;
-  transition: max-height 0.25s ease-out, padding 0.25s ease-out;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease-out;
 }
 .settings-section.open .settings-section-body {
-  max-height: 2000px;
+  grid-template-rows: 1fr;
+}
+.settings-section-body-inner {
+  overflow: hidden;
+  padding: 0 16px;
+  transition: padding 0.25s ease-out, border-color 0.25s;
+  border-top: 1px solid transparent;
+}
+.settings-section.open .settings-section-body-inner {
   padding: 16px;
-  border-top: 1px solid var(--border);
+  border-top-color: var(--border);
 }
 .danger-header { color: var(--danger); }
 
 /* Provider test status */
-.provider-test-status { font-size: 11px; margin-top: 6px; min-height: 16px; }
+.provider-test-status { font-size: 12px; margin-top: 6px; min-height: 16px; }
 .provider-test-status.ok { color: var(--teal); }
 .provider-test-status.fail { color: var(--danger); }
 .provider-test-status.pending { color: var(--muted); }
 .provider-badge {
-  font-size: 10px; font-weight: 700; letter-spacing: 0.05em;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
   text-transform: uppercase; padding: 2px 6px;
   border-radius: 4px; background: var(--amber-light); color: var(--amber);
   margin-left: 8px;
@@ -739,13 +750,13 @@ section.panel-drag-over { outline: 2px dashed var(--teal); }
 .code-block {
   background: var(--bg); border: 1px solid var(--border);
   border-radius: 6px; padding: 8px 12px;
-  font-family: monospace; font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', ui-monospace, monospace; font-size: 12px;
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 6px; gap: 10px;
 }
 .code-block span { flex: 1; word-break: break-all; }
 .copy-btn {
-  font-size: 11px; padding: 3px 8px;
+  font-size: 12px; padding: 3px 8px;
   border: 1px solid var(--border); border-radius: 4px;
   background: var(--surface); cursor: pointer; font-family: inherit;
   flex-shrink: 0; white-space: nowrap;
@@ -812,17 +823,7 @@ button:focus-visible,
 }
 
 /* Responsive layout */
-@media (max-width: 700px) {
-  main {
-    grid-template-columns: 1fr;
-  }
-  .header-top {
-    flex-wrap: wrap;
-  }
-  .header-controls {
-    flex-wrap: wrap;
-  }
-  /* Pipeline: horizontal scroll with snap on mobile */
+@media (max-width: 920px) {
   .pipeline-cols {
     display: flex;
     flex-direction: row;
@@ -833,16 +834,28 @@ button:focus-visible,
     -webkit-overflow-scrolling: touch;
   }
   .pipeline-col {
-    min-width: 240px;
-    width: 240px;
+    min-width: 200px;
+    width: 200px;
     flex-shrink: 0;
     scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 700px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+  .header-top {
+    flex-wrap: wrap;
+  }
+  .header-controls {
+    flex-wrap: wrap;
   }
   /* Scroll hint indicator */
   #pipeline::after {
     content: '← swipe →';
     display: block;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--muted);
     text-align: center;
     margin-top: 6px;
@@ -857,7 +870,7 @@ button:focus-visible,
   gap: 8px;
   margin-bottom: 16px;
 }
-.app-brand-mark { flex-shrink: 0; color: var(--teal); }
+.app-brand-mark { flex-shrink: 0; color: var(--amber); }
 .app-brand-name {
   font-size: 13px;
   font-weight: 700;
@@ -911,9 +924,9 @@ button:focus-visible,
   <div id="app">
     <div class="app-brand" aria-label="Groundwork">
       <svg class="app-brand-mark" width="22" height="18" viewBox="0 0 22 18" aria-hidden="true">
-        <rect x="0" y="12" width="6" height="6" rx="1.5"/>
-        <rect x="8" y="6" width="6" height="12" rx="1.5"/>
-        <rect x="16" y="0" width="6" height="18" rx="1.5"/>
+        <rect x="0" y="12" width="6" height="6" rx="1.5" fill="currentColor"/>
+        <rect x="8" y="6" width="6" height="12" rx="1.5" fill="currentColor"/>
+        <rect x="16" y="0" width="6" height="18" rx="1.5" fill="currentColor"/>
       </svg>
       <span class="app-brand-name">Groundwork</span>
     </div>
@@ -938,7 +951,7 @@ button:focus-visible,
         role: 'Digital Strategy Consultant',
         dayRate: 450,
         annualTarget: 60000,
-        ytdIncome: 38200,
+        ytdIncome: 56200,
       },
 
       pipeline: {
@@ -952,7 +965,7 @@ button:focus-visible,
         ],
         active: [
           { client: 'Shelter', project: 'Campaign planning', value: 5400 },
-          { client: 'Groundwork Trust', project: 'Digital strategy', value: 7200 },
+          { client: 'Scope', project: 'Digital strategy', value: 7200 },
           { client: 'Crisis', project: 'Newsletter strategy', value: 2250 },
         ],
         invoiced: [
@@ -976,7 +989,7 @@ button:focus-visible,
         weekHours: 35,
         loggedHours: 22,
         byClient: [
-          { client: 'Groundwork Trust', hours: 10 },
+          { client: 'Scope', hours: 10 },
           { client: 'Shelter', hours: 8 },
           { client: 'Crisis', hours: 4 },
         ],
@@ -985,7 +998,7 @@ button:focus-visible,
       actions: [
         { text: 'Send proposal to Mencap — discovery call was 3 days ago', tag: 'Proposal', urgency: 'urgent' },
         { text: 'Chase FareShare payment — invoice sent 4 days ago, no confirmation yet', tag: 'Invoice', urgency: 'amber' },
-        { text: 'Check in with Groundwork Trust — project at 80% complete', tag: 'Client', urgency: 'normal' },
+        { text: 'Check in with Scope — project at 80% complete', tag: 'Client', urgency: 'normal' },
         { text: 'Prepare for NCVO scoping call — confirm agenda and send brief', tag: 'Lead', urgency: 'normal' },
       ],
     };
@@ -1263,7 +1276,7 @@ button:focus-visible,
         undoUpdate:'Undo last update', weekHoursLabel:'Weekly hours available',
         editIncome:'Edit months', doneEditing:'Done',
         tourWelcomeTitle:'Welcome to Groundwork',
-        tourWelcomeText:"Your data lives entirely on this device — nothing is sent anywhere. The dashboard works fully offline and without AI.\nAI assistance is optional: if you add an API key, you can update your data in plain English. Here\u2019s a quick tour.",
+        tourWelcomeText:"Groundwork is your personal business dashboard for freelancers — track your pipeline, income, time, and next actions all in one place.\nYour data lives entirely on this device — nothing is sent anywhere. The dashboard works fully offline and without AI. AI assistance is optional: if you add an API key, you can update your data in plain English.",
         tourPipelineTitle:'Pipeline',
         tourPipelineText:'Track leads, proposals, active projects, and invoices. Drag cards between columns as deals progress. Click any card to add notes.',
         tourIncomeTitle:'Income',
@@ -1304,7 +1317,7 @@ button:focus-visible,
         undoUpdate:'Deshacer \u00faltima actualizaci\u00f3n', weekHoursLabel:'Horas semanales disponibles',
         editIncome:'Editar meses', doneEditing:'Listo',
         tourWelcomeTitle:'Bienvenido a Groundwork',
-        tourWelcomeText:'Tus datos viven en este dispositivo — nada se env\u00eda a ning\u00fan servidor. El panel funciona completamente sin conexi\u00f3n y sin IA.\nLa IA es opcional: si a\u00f1ades una clave API, puedes actualizar tus datos en lenguaje natural. Aqu\u00ed tienes un recorrido r\u00e1pido.',
+        tourWelcomeText:'Groundwork es tu panel de negocio personal para aut\u00f3nomos \u2014 gestiona tu cartera de proyectos, ingresos, tiempo y pr\u00f3ximas acciones en un solo lugar.\nTus datos viven en este dispositivo \u2014 nada se env\u00eda a ning\u00fan servidor. El panel funciona completamente sin conexi\u00f3n y sin IA. La IA es opcional: si a\u00f1ades una clave API, puedes actualizar tus datos en lenguaje natural.',
         tourPipelineTitle:'Pipeline',
         tourPipelineText:'Sigue clientes potenciales, propuestas, proyectos activos y facturas. Arrastra tarjetas entre columnas. Haz clic en una tarjeta para a\u00f1adir notas.',
         tourIncomeTitle:'Ingresos',
@@ -1345,7 +1358,7 @@ button:focus-visible,
         undoUpdate:'Annuler la derni\u00e8re mise \u00e0 jour', weekHoursLabel:'Heures disponibles par semaine',
         editIncome:'Modifier les mois', doneEditing:'Termin\u00e9',
         tourWelcomeTitle:'Bienvenue dans Groundwork',
-        tourWelcomeText:"Vos donn\u00e9es restent sur cet appareil \u2014 rien n\u2019est envoy\u00e9 ailleurs. Le tableau de bord fonctionne hors ligne et sans IA.\nL\u2019IA est optionnelle\u00a0: avec une cl\u00e9 API, vous pouvez mettre \u00e0 jour vos donn\u00e9es en langue naturelle. Voici un tour rapide.",
+        tourWelcomeText:"Groundwork est votre tableau de bord professionnel pour freelances \u2014 suivez votre pipeline, vos revenus, votre temps et vos prochaines actions en un seul endroit.\nVos donn\u00e9es restent sur cet appareil \u2014 rien n\u2019est envoy\u00e9 ailleurs. Le tableau de bord fonctionne hors ligne et sans IA. L\u2019IA est optionnelle\u00a0: avec une cl\u00e9 API, vous pouvez mettre \u00e0 jour vos donn\u00e9es en langue naturelle.",
         tourPipelineTitle:'Pipeline',
         tourPipelineText:'Suivez vos prospects, propositions, projets en cours et factures. Glissez les cartes entre les colonnes. Cliquez pour ajouter des notes.',
         tourIncomeTitle:'Revenus',
@@ -1386,7 +1399,7 @@ button:focus-visible,
         undoUpdate:'Letzte Aktualisierung r\u00fcckg\u00e4ngig machen', weekHoursLabel:'Verf\u00fcgbare Stunden pro Woche',
         editIncome:'Monate bearbeiten', doneEditing:'Fertig',
         tourWelcomeTitle:'Willkommen bei Groundwork',
-        tourWelcomeText:'Ihre Daten bleiben auf diesem Ger\u00e4t \u2014 nichts wird \u00fcbertragen. Das Dashboard funktioniert vollst\u00e4ndig offline und ohne KI.\nKI ist optional: Mit einem API-Schl\u00fcssel k\u00f6nnen Sie Ihre Daten in nat\u00fcrlicher Sprache aktualisieren. Hier ist eine kurze Tour.',
+        tourWelcomeText:'Groundwork ist Ihr pers\u00f6nliches Business-Dashboard f\u00fcr Freelancer \u2014 verwalten Sie Ihre Pipeline, Einnahmen, Zeit und n\u00e4chste Schritte an einem Ort.\nIhre Daten bleiben auf diesem Ger\u00e4t \u2014 nichts wird \u00fcbertragen. Das Dashboard funktioniert vollst\u00e4ndig offline und ohne KI. KI ist optional: Mit einem API-Schl\u00fcssel k\u00f6nnen Sie Ihre Daten in nat\u00fcrlicher Sprache aktualisieren.',
         tourPipelineTitle:'Pipeline',
         tourPipelineText:'Verfolgen Sie Interessenten, Angebote, aktive Projekte und Rechnungen. Ziehen Sie Karten zwischen Spalten. Klicken zum Bearbeiten.',
         tourIncomeTitle:'Einnahmen',
@@ -1427,7 +1440,7 @@ button:focus-visible,
         undoUpdate:'Annulla ultimo aggiornamento', weekHoursLabel:'Ore settimanali disponibili',
         editIncome:'Modifica mesi', doneEditing:'Fatto',
         tourWelcomeTitle:'Benvenuto in Groundwork',
-        tourWelcomeText:"I tuoi dati rimangono su questo dispositivo \u2014 nulla viene inviato altrove. Il dashboard funziona completamente offline e senza IA.\nL\u2019IA \u00e8 opzionale: con una chiave API puoi aggiornare i dati in linguaggio naturale. Ecco un rapido tour.",
+        tourWelcomeText:"Groundwork \u00e8 il tuo dashboard aziendale personale per freelance \u2014 gestisci il tuo pipeline, le entrate, il tempo e le prossime azioni in un unico posto.\nI tuoi dati rimangono su questo dispositivo \u2014 nulla viene inviato altrove. Il dashboard funziona completamente offline e senza IA. L\u2019IA \u00e8 opzionale: con una chiave API puoi aggiornare i dati in linguaggio naturale.",
         tourPipelineTitle:'Pipeline',
         tourPipelineText:'Monitora lead, proposte, progetti attivi e fatture. Trascina le schede tra le colonne. Clicca per aggiungere note.',
         tourIncomeTitle:'Entrate',
@@ -1475,7 +1488,7 @@ button:focus-visible,
       const opts = Object.keys(TRANSLATIONS)
         .map(l => `<option value="${l}" ${l === cur ? 'selected' : ''}>${LANG_NAMES[l]}</option>`)
         .join('');
-      return `<select id="langSwitch" class="btn-sm" style="padding:3px 6px;font-size:11px;" aria-label="${t('language')}">${opts}</select>`;
+      return `<select id="langSwitch" class="btn-sm" style="padding:3px 6px;font-size:12px;" aria-label="${t('language')}">${opts}</select>`;
     }
 
     // ── end i18n ──────────────────────────────────────────────────────────
@@ -1541,11 +1554,12 @@ button:focus-visible,
       <h3>Settings</h3>
 
       <div class="settings-section" id="section-profile">
-        <div class="settings-section-header" role="button" tabindex="0" aria-expanded="false" aria-controls="section-profile-body">
+        <button class="settings-section-header" type="button" aria-expanded="false" aria-controls="section-profile-body">
           <span>Profile &amp; Targets</span>
           <span class="settings-chevron">&#9654;</span>
-        </div>
+        </button>
         <div class="settings-section-body" id="section-profile-body">
+          <div class="settings-section-body-inner">
           <div class="onboarding-row">
             <div class="onboarding-field">
               <label for="prof-name">Your name</label>
@@ -1614,15 +1628,17 @@ button:focus-visible,
             <button class="btn btn-primary" id="prof-save">Save changes</button>
             <span id="prof-saved" role="status" style="font-size:12px;color:var(--teal);display:none;">Saved ✓</span>
           </div>
+          </div>
         </div>
       </div>
 
       <div class="settings-section" id="section-ai">
-        <div class="settings-section-header" role="button" tabindex="0" aria-expanded="false" aria-controls="section-ai-body">
+        <button class="settings-section-header" type="button" aria-expanded="false" aria-controls="section-ai-body">
           <span>AI Models</span>
           <span class="settings-chevron">&#9654;</span>
-        </div>
+        </button>
         <div class="settings-section-body" id="section-ai-body">
+          <div class="settings-section-body-inner">
           <p style="font-size:13px;color:var(--muted);margin-bottom:4px;">The "Ask AI" panel connects to an AI service to update your dashboard in plain English.</p>
           <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Each cloud provider requires an API key from their website — usage may have a small cost. Or use Ollama (below) to run AI locally for free.</p>
 
@@ -1651,15 +1667,17 @@ button:focus-visible,
           }).join('')}
 
           <div id="ollamaCardSlot"></div>
+          </div>
         </div>
       </div>
 
       <div class="settings-section" id="section-appearance">
-        <div class="settings-section-header" role="button" tabindex="0" aria-expanded="false" aria-controls="section-appearance-body">
+        <button class="settings-section-header" type="button" aria-expanded="false" aria-controls="section-appearance-body">
           <span>Appearance</span>
           <span class="settings-chevron">&#9654;</span>
-        </div>
+        </button>
         <div class="settings-section-body" id="section-appearance-body">
+          <div class="settings-section-body-inner">
           <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Choose an accent colour for the dashboard.</p>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
             ${ACCENT_COLORS.map(a =>
@@ -1671,15 +1689,17 @@ button:focus-visible,
             <span style="font-size:13px;">High contrast mode</span>
           </label>
           <p style="font-size:12px;color:var(--muted);margin-top:4px;">Darker backgrounds, higher contrast text, and stronger borders.</p>
+          </div>
         </div>
       </div>
 
       <div class="settings-section" id="section-data">
-        <div class="settings-section-header" role="button" tabindex="0" aria-expanded="false" aria-controls="section-data-body">
+        <button class="settings-section-header" type="button" aria-expanded="false" aria-controls="section-data-body">
           <span>Data</span>
           <span class="settings-chevron">&#9654;</span>
-        </div>
+        </button>
         <div class="settings-section-body" id="section-data-body">
+          <div class="settings-section-body-inner">
           <p style="font-size:13px;color:var(--muted);margin-bottom:4px;"><strong>Export</strong></p>
           <p style="font-size:12px;color:var(--muted);margin-bottom:8px;">Download your live data. JSON is a full backup; CSV exports your pipeline for use in spreadsheets.</p>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -1705,41 +1725,46 @@ button:focus-visible,
           <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
 
           <a href="#" id="settingsTourLink" style="font-size:12px;color:var(--teal);">Take the tour &rarr;</a>
+          </div>
         </div>
       </div>
 
       <div class="settings-section" id="section-yearend">
-        <div class="settings-section-header" role="button" tabindex="0" aria-expanded="false" aria-controls="section-yearend-body">
+        <button class="settings-section-header" type="button" aria-expanded="false" aria-controls="section-yearend-body">
           <span>Year End</span>
           <span class="settings-chevron">&#9654;</span>
-        </div>
+        </button>
         <div class="settings-section-body" id="section-yearend-body">
+          <div class="settings-section-body-inner">
           <p style="font-size:13px;color:var(--muted);margin-bottom:8px;">At the end of your financial year, close the year to reset your income tracker for the new year. Your pipeline, actions, and all other data are kept.</p>
           <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Closing the year will: reset monthly income to zero, reset YTD income to zero, and record the final total in your notes.</p>
           <button class="btn-sm" id="yearEndBtn">Close financial year&hellip;</button>
           <span id="yearEndConfirm" role="alert" style="display:none;margin-left:8px;font-size:12px;">
             This will reset all income data for the new year.
-            <button class="btn btn-danger" id="yearEndConfirmYes" style="margin-left:6px;font-size:11px;padding:3px 10px;">Close the year</button>
+            <button class="btn btn-danger" id="yearEndConfirmYes" style="margin-left:6px;font-size:13px;padding:6px 14px;">Close the year</button>
             <button class="btn-sm" id="yearEndConfirmNo" style="margin-left:4px;">Cancel</button>
           </span>
           <p id="yearEndDone" style="display:none;font-size:12px;color:var(--teal);margin-top:8px;"></p>
+          </div>
         </div>
       </div>
 
       <div class="settings-section" id="section-danger">
-        <div class="settings-section-header" role="button" tabindex="0" aria-expanded="false" aria-controls="section-danger-body">
+        <button class="settings-section-header" type="button" aria-expanded="false" aria-controls="section-danger-body">
           <span class="danger-header">Danger Zone</span>
           <span class="settings-chevron">&#9654;</span>
-        </div>
+        </button>
         <div class="settings-section-body" id="section-danger-body">
+          <div class="settings-section-body-inner">
           <p style="font-size:13px;color:var(--muted);margin-bottom:4px;"><strong>Reset live data</strong></p>
           <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Permanently delete all pipeline entries, income records, capacity data, and actions. Your settings and API keys are not affected.</p>
           <button class="btn-sm" id="clearLiveDataBtn" style="color:var(--danger);border-color:var(--danger);">Reset live data&hellip;</button>
           <span id="clearLiveConfirm" role="alert" style="display:none;margin-left:10px;font-size:12px;">
             Are you sure? This cannot be undone.
-            <button class="btn btn-danger" id="clearLiveConfirmYes" style="margin-left:6px;font-size:11px;padding:3px 10px;">Yes, delete everything</button>
+            <button class="btn btn-danger" id="clearLiveConfirmYes" style="margin-left:6px;font-size:13px;padding:6px 14px;">Yes, delete everything</button>
             <button class="btn-sm" id="clearLiveConfirmNo" style="margin-left:4px;">Cancel</button>
           </span>
+          </div>
         </div>
       </div>
 
@@ -1764,9 +1789,6 @@ button:focus-visible,
   }
   modal.querySelectorAll('.settings-section-header').forEach(header => {
     header.addEventListener('click', () => toggleSettingsSection(header));
-    header.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSettingsSection(header); }
-    });
   });
 
   const cleanupSettingsFocus = trapFocus(modal);
@@ -1987,12 +2009,12 @@ button:focus-visible,
         <div class="guide-step-body">
           <strong style="font-size:13px;">Allow browser access</strong>
           <p>Ollama needs one extra setting to work with this dashboard. In a <em>new</em> terminal window, run:</p>
-          <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px;">Mac / Linux</p>
+          <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px;">Mac / Linux</p>
           <div class="code-block">
             <span>OLLAMA_ORIGINS="*" ollama serve</span>
             <button class="copy-btn" data-copy='OLLAMA_ORIGINS="*" ollama serve'>Copy</button>
           </div>
-          <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px;">Windows</p>
+          <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px;">Windows</p>
           <div class="code-block">
             <span>set OLLAMA_ORIGINS=* &amp;&amp; ollama serve</span>
             <button class="copy-btn" data-copy="set OLLAMA_ORIGINS=* && ollama serve">Copy</button>
@@ -2602,7 +2624,7 @@ button:focus-visible,
                 <button class="btn-danger" id="pf-delete">Delete</button>
                 <span id="pf-delete-confirm" role="alert" style="display:none;font-size:12px;">
                   Sure?
-                  <button class="btn-danger" id="pf-delete-yes" style="margin-left:4px;font-size:11px;padding:3px 8px;">Yes, delete</button>
+                  <button class="btn-danger" id="pf-delete-yes" style="margin-left:4px;font-size:13px;padding:6px 12px;">Yes, delete</button>
                   <button class="btn-sm" id="pf-delete-no" style="margin-left:2px;">No</button>
                 </span>
               </div>` : '<span></span>'}
@@ -3010,7 +3032,7 @@ button:focus-visible,
           </div>
           <div class="chat-footer">
             <span>${t('poweredBy')} ${provider.name}</span>
-            ${lastDataSnapshot ? `<button id="undoBtn" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;text-decoration:underline;">${t('undoUpdate')}</button>` : ''}
+            ${lastDataSnapshot ? `<button id="undoBtn" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;text-decoration:underline;">${t('undoUpdate')}</button>` : ''}
           </div>
         `}
       `;
