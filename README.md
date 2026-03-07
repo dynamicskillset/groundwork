@@ -1,59 +1,63 @@
 # Freelancer BizDev Dashboard
 
-A private, offline-first business development dashboard for freelancers. Single HTML file — no build step, no server, no account required.
+![Dashboard screenshot](screenshot.png)
 
-## Features
+A personal business dashboard that lives entirely on your computer. Track your leads, income, time, and to-do list — without subscriptions, accounts, or sending your data anywhere.
 
-- **Pipeline kanban** — track leads, proposals, active projects, invoiced, and paid work; drag to reorder, keyboard accessible
-- **Income tracker** — monthly bar chart with YTD total, best month, monthly average, and projected year-end; edit month-by-month manually
-- **Time & capacity** — weekly hours by client, inline time logger, click-to-edit weekly hours
-- **Next actions** — add/delete tasks manually with urgency levels; or describe them to AI
-- **Ask AI** — describe changes in plain English and the dashboard updates automatically; works with Claude, Gemini, ChatGPT, Mistral, or Ollama
-- **Undo** — one-level undo for any AI update
-- **Settings** — profile, targets, currency, VAT, financial year end, AI providers, accent colours, data export/import
-- **Privacy toggle** — hide all financial figures with one click
-- **i18n** — English, Spanish, French, German, Italian; language change auto-switches currency
+## What it does
 
-## Privacy & data
+- **Pipeline** — see all your work at a glance, from first conversation to getting paid. Drag jobs across columns as they progress (Lead → Proposal → Active → Invoiced → Paid).
+- **Income** — a monthly bar chart showing what you've earned, your best month, and a projected year-end total based on your average.
+- **Time & capacity** — log hours by client, see how your week is filling up, and keep an eye on your workload.
+- **Next actions** — a simple to-do list with priority levels so you know what to tackle first.
+- **Ask AI** — describe a change in plain English and the dashboard updates itself. "Moved the Acme project to invoiced" or "Logged 3 hours on the Barnardo's website" — that kind of thing. Completely optional.
 
-Everything lives in your browser's `localStorage`. Nothing is sent anywhere unless you actively use the Ask AI feature with a cloud provider API key. The dashboard works fully offline and without any AI key.
+## Your data stays with you
+
+Everything is saved in your browser — there's no account, no server, and nothing leaves your computer unless you choose to use the Ask AI feature with an internet-connected AI service. The dashboard works fully offline.
 
 ## Getting started
 
-Download `index.html` and open it in any modern browser. That's it.
+1. Download `index.html`
+2. Open it in any web browser (Chrome, Firefox, Safari, Edge)
+3. Answer a few quick setup questions (your name, currency, annual income target)
+4. You're in
 
-On first load you'll be walked through a short setup (name, currency, financial year end) and an optional guided tour.
+Take the guided tour on first load — it walks you through each section in about two minutes.
 
-## AI setup (optional)
+## Languages
 
-Open Settings → AI Models and paste an API key for any supported provider:
+The dashboard is available in English, Spanish, French, German, and Italian. Change your language in Settings. Switching language also adjusts the default currency symbol.
 
-| Provider | Where to get a key |
+## Privacy toggle
+
+Click the currency symbol in the top-right corner to hide all financial figures — handy if you're working in a coffee shop or on a video call.
+
+## Optional: Ask AI
+
+The "Ask AI" box lets you update your dashboard by describing what happened, rather than clicking through forms. It works with several AI services — you'll need an account and API key from whichever one you choose:
+
+| Service | Where to sign up |
 |---|---|
-| Claude | console.anthropic.com |
-| Gemini | aistudio.google.com |
-| ChatGPT | platform.openai.com |
+| Claude (Anthropic) | console.anthropic.com |
+| Gemini (Google) | aistudio.google.com |
+| ChatGPT (OpenAI) | platform.openai.com |
 | Mistral | console.mistral.ai |
-| Ollama | Run locally — no key needed |
+| Ollama | Run locally on your computer — free, no account needed |
 
-Once a key is saved, the Ask AI panel lets you update your dashboard in plain English, e.g. _"I just landed a new project with Acme worth £4,500"_ or _"Move the Barnardo's project to invoiced"_.
+Add your key in Settings → AI Models. If you'd rather not use AI at all, every part of the dashboard works manually — nothing is hidden behind it.
 
-## Keyboard accessibility
+## Backing up your data
 
-- **Pipeline cards** — Tab to focus, Enter/Space to open edit modal
-- **Panel reorder** — Tab to drag handle, Arrow Up/Down to move
-- **Settings accordion** — Tab to header, Enter/Space to open/close
-- **Tour** — fully keyboard navigable, closes on Escape
-- **All modals** — focus trapped, close on Escape, focus returns to trigger
+Settings → Data → Export JSON saves a full backup you can restore from at any time. You can also export your pipeline as a spreadsheet (CSV) if you want to work with it in Excel or Numbers.
 
-## Exporting data
+## Keyboard shortcuts
 
-Settings → Data → Export JSON (full backup) or Export pipeline CSV.
-
-## Tech
-
-Vanilla HTML/CSS/JS, no framework, no build step. Chart.js loaded from CDN with SRI integrity hash. All data in `localStorage` under `bizdev-*` keys.
+Everything works with a keyboard if you prefer not to use a mouse:
+- Tab through pipeline cards, then Enter or Space to open one
+- Arrow keys to move sections up or down
+- Escape to close any pop-up
 
 ## Licence
 
-MIT
+MIT — free to use, modify, and share.
