@@ -60,4 +60,4 @@ Everything works with a keyboard if you prefer not to use a mouse:
 
 ## Licence
 
-MIT — free to use, modify, and share.
+AGPL-3.0. If you distribute or host a modified version, you must make the source available under the same terms.
