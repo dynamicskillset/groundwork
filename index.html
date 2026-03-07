@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Private, offline-first freelance business dashboard. Track your pipeline, income, and time — no account required, no data sent anywhere.">
   <title>Groundwork</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='2' y='4' width='20' height='5' rx='2' fill='%23ebcb8b'/%3E%3Crect x='2' y='11' width='14' height='5' rx='2' fill='%23ebcb8b'/%3E%3Crect x='2' y='18' width='8' height='5' rx='2' fill='%23ebcb8b'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 18'%3E%3Crect x='0' y='12' width='6' height='6' rx='1.5' fill='%23ebcb8b'/%3E%3Crect x='8' y='6' width='6' height='12' rx='1.5' fill='%23ebcb8b'/%3E%3Crect x='16' y='0' width='6' height='18' rx='1.5' fill='%23ebcb8b'/%3E%3C/svg%3E">
   <script>/* Chart.js 4.4.0 — inlined for offline use */
 /**
  * Skipped minification because the original files appears to be already minified.
@@ -669,7 +669,8 @@ section.panel-drag-over { outline: 2px dashed var(--teal); }
   pointer-events: all;
 }
 .guide-tooltip h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
-.guide-tooltip p { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
+.guide-body p { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+.guide-body p:last-child { margin-bottom: 14px; }
 .guide-nav { display: flex; justify-content: space-between; align-items: center; }
 .guide-progress { font-size: 12px; color: var(--muted); }
 .guide-highlighted {
@@ -910,9 +911,9 @@ button:focus-visible,
   <div id="app">
     <div class="app-brand" aria-label="Groundwork">
       <svg class="app-brand-mark" width="22" height="18" viewBox="0 0 22 18" aria-hidden="true">
-        <rect x="0" y="0" width="22" height="5" rx="2"/>
-        <rect x="0" y="7" width="15" height="5" rx="2"/>
-        <rect x="0" y="14" width="9" height="4" rx="2"/>
+        <rect x="0" y="12" width="6" height="6" rx="1.5"/>
+        <rect x="8" y="6" width="6" height="12" rx="1.5"/>
+        <rect x="16" y="0" width="6" height="18" rx="1.5"/>
       </svg>
       <span class="app-brand-name">Groundwork</span>
     </div>
@@ -1255,7 +1256,7 @@ button:focus-visible,
         undoUpdate:'Undo last update', weekHoursLabel:'Weekly hours available',
         editIncome:'Edit months', doneEditing:'Done',
         tourWelcomeTitle:'Welcome to Groundwork',
-        tourWelcomeText:"Your data lives entirely on this device — nothing is sent anywhere. The dashboard works fully offline and without AI. AI assistance is optional: if you add an API key, you can update your data in plain English. Here\u2019s a quick tour.",
+        tourWelcomeText:"Your data lives entirely on this device — nothing is sent anywhere. The dashboard works fully offline and without AI.\nAI assistance is optional: if you add an API key, you can update your data in plain English. Here\u2019s a quick tour.",
         tourPipelineTitle:'Pipeline',
         tourPipelineText:'Track leads, proposals, active projects, and invoices. Drag cards between columns as deals progress. Click any card to add notes.',
         tourIncomeTitle:'Income',
@@ -1296,7 +1297,7 @@ button:focus-visible,
         undoUpdate:'Deshacer \u00faltima actualizaci\u00f3n', weekHoursLabel:'Horas semanales disponibles',
         editIncome:'Editar meses', doneEditing:'Listo',
         tourWelcomeTitle:'Bienvenido a Groundwork',
-        tourWelcomeText:'Tus datos viven en este dispositivo — nada se env\u00eda a ning\u00fan servidor. El panel funciona completamente sin conexi\u00f3n y sin IA. La IA es opcional: si a\u00f1ades una clave API, puedes actualizar tus datos en lenguaje natural. Aqu\u00ed tienes un recorrido r\u00e1pido.',
+        tourWelcomeText:'Tus datos viven en este dispositivo — nada se env\u00eda a ning\u00fan servidor. El panel funciona completamente sin conexi\u00f3n y sin IA.\nLa IA es opcional: si a\u00f1ades una clave API, puedes actualizar tus datos en lenguaje natural. Aqu\u00ed tienes un recorrido r\u00e1pido.',
         tourPipelineTitle:'Pipeline',
         tourPipelineText:'Sigue clientes potenciales, propuestas, proyectos activos y facturas. Arrastra tarjetas entre columnas. Haz clic en una tarjeta para a\u00f1adir notas.',
         tourIncomeTitle:'Ingresos',
@@ -1337,7 +1338,7 @@ button:focus-visible,
         undoUpdate:'Annuler la derni\u00e8re mise \u00e0 jour', weekHoursLabel:'Heures disponibles par semaine',
         editIncome:'Modifier les mois', doneEditing:'Termin\u00e9',
         tourWelcomeTitle:'Bienvenue dans Groundwork',
-        tourWelcomeText:"Vos donn\u00e9es restent sur cet appareil \u2014 rien n\u2019est envoy\u00e9 ailleurs. Le tableau de bord fonctionne hors ligne et sans IA. L\u2019IA est optionnelle\u00a0: avec une cl\u00e9 API, vous pouvez mettre \u00e0 jour vos donn\u00e9es en langue naturelle. Voici un tour rapide.",
+        tourWelcomeText:"Vos donn\u00e9es restent sur cet appareil \u2014 rien n\u2019est envoy\u00e9 ailleurs. Le tableau de bord fonctionne hors ligne et sans IA.\nL\u2019IA est optionnelle\u00a0: avec une cl\u00e9 API, vous pouvez mettre \u00e0 jour vos donn\u00e9es en langue naturelle. Voici un tour rapide.",
         tourPipelineTitle:'Pipeline',
         tourPipelineText:'Suivez vos prospects, propositions, projets en cours et factures. Glissez les cartes entre les colonnes. Cliquez pour ajouter des notes.',
         tourIncomeTitle:'Revenus',
@@ -1378,7 +1379,7 @@ button:focus-visible,
         undoUpdate:'Letzte Aktualisierung r\u00fcckg\u00e4ngig machen', weekHoursLabel:'Verf\u00fcgbare Stunden pro Woche',
         editIncome:'Monate bearbeiten', doneEditing:'Fertig',
         tourWelcomeTitle:'Willkommen bei Groundwork',
-        tourWelcomeText:'Ihre Daten bleiben auf diesem Ger\u00e4t \u2014 nichts wird \u00fcbertragen. Das Dashboard funktioniert vollst\u00e4ndig offline und ohne KI. KI ist optional: Mit einem API-Schl\u00fcssel k\u00f6nnen Sie Ihre Daten in nat\u00fcrlicher Sprache aktualisieren. Hier ist eine kurze Tour.',
+        tourWelcomeText:'Ihre Daten bleiben auf diesem Ger\u00e4t \u2014 nichts wird \u00fcbertragen. Das Dashboard funktioniert vollst\u00e4ndig offline und ohne KI.\nKI ist optional: Mit einem API-Schl\u00fcssel k\u00f6nnen Sie Ihre Daten in nat\u00fcrlicher Sprache aktualisieren. Hier ist eine kurze Tour.',
         tourPipelineTitle:'Pipeline',
         tourPipelineText:'Verfolgen Sie Interessenten, Angebote, aktive Projekte und Rechnungen. Ziehen Sie Karten zwischen Spalten. Klicken zum Bearbeiten.',
         tourIncomeTitle:'Einnahmen',
@@ -1419,7 +1420,7 @@ button:focus-visible,
         undoUpdate:'Annulla ultimo aggiornamento', weekHoursLabel:'Ore settimanali disponibili',
         editIncome:'Modifica mesi', doneEditing:'Fatto',
         tourWelcomeTitle:'Benvenuto in Groundwork',
-        tourWelcomeText:"I tuoi dati rimangono su questo dispositivo \u2014 nulla viene inviato altrove. Il dashboard funziona completamente offline e senza IA. L\u2019IA \u00e8 opzionale: con una chiave API puoi aggiornare i dati in linguaggio naturale. Ecco un rapido tour.",
+        tourWelcomeText:"I tuoi dati rimangono su questo dispositivo \u2014 nulla viene inviato altrove. Il dashboard funziona completamente offline e senza IA.\nL\u2019IA \u00e8 opzionale: con una chiave API puoi aggiornare i dati in linguaggio naturale. Ecco un rapido tour.",
         tourPipelineTitle:'Pipeline',
         tourPipelineText:'Monitora lead, proposte, progetti attivi e fatture. Trascina le schede tra le colonne. Clicca per aggiungere note.',
         tourIncomeTitle:'Entrate',
@@ -3341,7 +3342,7 @@ RULES:
         tooltip.innerHTML = `
           <button class="modal-close" aria-label="Close" id="guideClose">&times;</button>
           <h4></h4>
-          <p></p>
+          <div class="guide-body"></div>
           ${dontShowHTML}
           <div class="guide-nav">
             <span class="guide-progress">Step ${step + 1} of ${getGuideSteps().length}</span>
@@ -3354,7 +3355,12 @@ RULES:
 
         // Set text content safely (no XSS)
         tooltip.querySelector('h4').textContent = s.title;
-        tooltip.querySelector('p').textContent = s.text;
+        const guideBody = tooltip.querySelector('.guide-body');
+        s.text.split('\n').forEach(para => {
+          const p = document.createElement('p');
+          p.textContent = para;
+          guideBody.appendChild(p);
+        });
 
         // Position tooltip — keep within viewport, never overlap highlighted element
         if (s.target) {
