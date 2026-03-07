@@ -1,0 +1,3310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Private, offline-first freelance business dashboard. Track your pipeline, income, and time — no account required, no data sent anywhere.">
+  <title>BizDev Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #2e3440;
+      --surface: #3b4252;
+      --border: #4c566a;
+      --teal: #88c0d0;
+      --teal-light: #2a3d45;
+      --amber: #ebcb8b;
+      --amber-light: #3d3525;
+      --text: #eceff4;
+      --muted: #81a1c1;
+      --danger: #bf616a;
+      --danger-bg: #3d2020;
+      --danger-bg-hover: #4a2828;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: clamp(13px, 1.3vw, 15px);
+      line-height: 1.5;
+    }
+
+    #app {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    header {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    #pipeline { grid-column: 1 / -1; }
+
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: clamp(17px, 2vw, 22px);
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .progress-wrap { margin-top: 14px; }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: var(--muted);
+    }
+    .progress-label strong { color: var(--text); }
+    .progress-bar {
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--teal);
+      border-radius: 4px;
+      transform-origin: left center;
+      transform: scaleX(0);
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
+    }
+
+    .pipeline-cols {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+    .pipeline-col {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .pipeline-col-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+    .pipeline-col-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+    .pipeline-col-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--teal);
+    }
+    .pipeline-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    .pipeline-card-name { font-weight: 600; }
+    .pipeline-card-type { color: var(--muted); font-size: 12px; }
+    .pipeline-card-amount { color: var(--amber); font-weight: 600; font-size: 12px; margin-top: 2px; }
+
+    .income-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .stat {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .stat-value { font-size: clamp(15px, 1.6vw, 20px); font-weight: 700; color: var(--text); margin-top: 2px; }
+    .stat-value.teal { color: var(--teal); }
+
+    .income-month-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .income-month-input label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+    .income-month-input input {
+      width: 100%;
+      padding: 5px 7px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 12px;
+    }
+    .income-month-input input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+
+    .capacity-summary {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .capacity-hours { font-size: clamp(22px, 2.5vw, 32px); font-weight: 700; color: var(--text); }
+    .capacity-of { font-size: 14px; color: var(--muted); }
+    .capacity-warning {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .client-bar-row { margin-bottom: 10px; }
+    .client-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 4px;
+      color: var(--muted);
+    }
+    .client-bar-label span:first-child { color: var(--text); font-weight: 500; }
+    .client-bar-track {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .client-bar-fill {
+      height: 100%;
+      background: var(--teal);
+      border-radius: 3px;
+    }
+
+    .action-delete {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      padding: 6px 8px;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s;
+      flex-shrink: 0;
+    }
+    .action-item:hover .action-delete,
+    .action-delete:focus-visible { opacity: 1; }
+    .action-delete:hover { color: var(--danger); }
+    .action-item {
+      display: flex;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: flex-start;
+    }
+    .action-item:last-child { border-bottom: none; }
+    .action-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--teal);
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .action-dot.urgent { background: var(--danger); }
+    .action-dot.amber { background: var(--amber); }
+    .action-text { font-size: 13px; }
+    .action-tag {
+      display: inline-block;
+      font-size: 11px;
+      background: var(--teal-light);
+      color: var(--teal);
+      border-radius: 3px;
+      padding: 1px 6px;
+      margin-top: 3px;
+      font-weight: 600;
+    }
+    .action-tag.amber { background: var(--amber-light); color: var(--amber); }
+    .action-tag.red { background: var(--danger-bg); color: var(--danger); }
+
+    /* Chat panel */
+    #chat { display: flex; flex-direction: column; gap: 12px; }
+
+    .chat-setup { display: flex; flex-direction: column; gap: 8px; }
+    .chat-setup p { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .chat-setup input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .chat-setup input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+
+    .chat-last-update {
+      font-size: 12px;
+      color: var(--muted);
+      min-height: 16px;
+      font-style: italic;
+    }
+    .chat-last-update.error { color: var(--danger); font-style: normal; }
+
+    .chat-input-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+    .chat-input-row textarea {
+      flex: 1;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: none;
+      line-height: 1.4;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .chat-input-row textarea:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+    .chat-input-row textarea:disabled { opacity: 0.5; }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .btn-primary { background: var(--teal); color: var(--btn-on-accent, #eceff4); }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-danger { background: var(--danger); color: var(--danger-text, #fff); }
+    .btn-danger:hover { opacity: 0.9; }
+
+    .chat-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .chat-footer button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 11px;
+      padding: 4px 2px;
+      min-height: 44px;
+      text-decoration: underline;
+    }
+    .chat-footer button:hover { color: var(--danger); }
+
+    .chat-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0;
+    }
+    .chat-panel-header h2 { margin-bottom: 0; }
+    .chat-gear {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 14px;
+      padding: 6px;
+      line-height: 1;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .chat-gear:hover { color: var(--text); }
+
+    .spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--border);
+      border-top-color: var(--teal);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 4px;
+      will-change: transform;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Header controls */
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .header-identity h1 { margin-bottom: 2px; }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+
+    .mode-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .mode-pill.demo { background: var(--amber-light); color: var(--amber); }
+    .mode-pill.live { background: var(--teal-light); color: var(--teal); }
+
+    .btn-sm {
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      background: var(--surface);
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .btn-sm:hover { background: var(--bg); }
+    .btn-sm.primary { background: var(--teal); color: var(--btn-on-accent, #eceff4); border-color: var(--teal); }
+    .btn-sm.primary:hover { opacity: 0.9; }
+
+    .import-input { display: none; }
+
+    /* Settings modal */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 28px;
+      max-width: 560px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    .modal h3 {
+      font-size: 16px; font-weight: 700;
+      margin-bottom: 20px; color: var(--text);
+    }
+    .modal-close {
+      position: absolute; top: 8px; right: 8px;
+      background: none; border: none; font-size: 20px;
+      cursor: pointer; color: var(--muted); line-height: 1;
+      padding: 8px;
+      min-width: 44px; min-height: 44px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { color: var(--text); }
+    .provider-card {
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+    .provider-card.active { border-color: var(--teal); background: var(--teal-light); }
+    .provider-header {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 10px;
+    }
+    .provider-name { font-weight: 600; font-size: 14px; }
+    .provider-radio { accent-color: var(--teal); width: 16px; height: 16px; cursor: pointer; }
+    .provider-hint { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+    .provider-input-row { display: flex; gap: 8px; }
+    .provider-input-row input {
+      flex: 1; padding: 7px 10px;
+      border: 1px solid var(--border); border-radius: 6px;
+      font-size: 13px; font-family: inherit;
+      background: var(--bg); color: var(--text);
+    }
+    .provider-saved { font-size: 11px; color: var(--teal); margin-top: 6px; }
+
+    /* Onboarding modal steps */
+    .onboarding-steps {
+      display: flex; gap: 6px; margin-bottom: 20px;
+    }
+    .onboarding-step-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--border);
+    }
+    .onboarding-step-dot.active { background: var(--teal); }
+    .onboarding-step-dot.done { background: var(--teal); opacity: 0.4; }
+    .onboarding-field { margin-bottom: 14px; }
+    .onboarding-field label {
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--muted); margin-bottom: 5px;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .onboarding-field input, .onboarding-field select {
+      width: 100%; padding: 8px 10px;
+      border: 1px solid var(--border); border-radius: 6px;
+      font-size: 14px; font-family: inherit;
+      background: var(--bg); color: var(--text);
+    }
+    .onboarding-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .onboarding-nav {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-top: 20px;
+    }
+    .onboarding-skip { font-size: 12px; color: var(--muted); cursor: pointer; background: none; border: none; }
+    .onboarding-skip:hover { color: var(--text); }
+    .action-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+    .action-row input { flex: 1; }
+    .action-row select { width: 110px; }
+    .action-row button { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 16px; min-width: 44px; min-height: 44px; }
+
+    /* Pipeline kanban interactions */
+    .pipeline-card {
+      cursor: grab;
+      transition: opacity 0.2s, box-shadow 0.2s;
+    }
+    .pipeline-card:active { cursor: grabbing; }
+    .pipeline-card.dragging { opacity: 0.4; }
+    .pipeline-col.drag-over { background: var(--teal-light); outline: 2px dashed var(--teal); }
+    .pipeline-add-btn {
+      width: 100%; padding: 6px;
+      background: none; border: 1px dashed var(--border);
+      border-radius: 6px; color: var(--muted);
+      font-size: 12px; cursor: pointer; margin-top: 4px;
+      font-family: inherit;
+    }
+    .pipeline-add-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+    /* Pipeline edit modal */
+    .pipeline-form .onboarding-field { margin-bottom: 12px; }
+    .pipeline-form input, .pipeline-form textarea, .pipeline-form select {
+      width: 100%; padding: 8px 10px;
+      border: 1px solid var(--border); border-radius: 6px;
+      font-size: 13px; font-family: inherit;
+      background: var(--bg); color: var(--text);
+    }
+    .pipeline-form textarea { resize: vertical; min-height: 80px; }
+    .pipeline-modal-footer {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-top: 16px;
+    }
+    .btn-danger {
+      padding: 8px 16px; border: none; border-radius: 6px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      background: var(--danger-bg); color: var(--danger); font-family: inherit;
+    }
+    .btn-danger:hover { background: var(--danger-bg-hover); }
+
+    /* Time tracker */
+    .timer-duration {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 10px 0;
+    }
+    .timer-duration-val {
+      font-size: 22px; font-weight: 700; text-align: center; flex: 1;
+      color: var(--text);
+    }
+    .timer-step-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--bg);
+      font-size: 18px; cursor: pointer; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text); flex-shrink: 0;
+    }
+    .timer-step-btn:hover { background: var(--surface); }
+    .timer-client-select {
+      width: 100%; padding: 7px 10px; margin-bottom: 10px;
+      border: 1px solid var(--border); border-radius: 6px;
+      font-size: 13px; font-family: inherit;
+      background: var(--bg); color: var(--text);
+    }
+
+
+/* Panel drag handles */
+.panel-drag-handle {
+  position: absolute; top: 10px; left: 10px;
+  color: var(--border); cursor: grab; font-size: 14px;
+  opacity: 0; transition: opacity 0.15s;
+  user-select: none;
+}
+section:hover .panel-drag-handle,
+section:focus-within .panel-drag-handle { opacity: 1; }
+section { position: relative; }
+section.panel-dragging { opacity: 0.5; }
+section.panel-drag-over { outline: 2px dashed var(--teal); }
+.panel-drag-handle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; opacity: 1; }
+
+/* Getting started guide */
+.guide-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 900;
+  pointer-events: none;
+}
+.guide-tooltip {
+  position: fixed;
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 320px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  z-index: 920;
+  pointer-events: all;
+}
+.guide-tooltip h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.guide-tooltip p { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
+.guide-nav { display: flex; justify-content: space-between; align-items: center; }
+.guide-progress { font-size: 11px; color: var(--muted); }
+.guide-highlighted {
+  position: relative;
+  z-index: 910 !important;
+  box-shadow: 0 0 0 4px var(--teal), 0 8px 32px rgba(0,0,0,0.2) !important;
+  pointer-events: none;
+}
+
+/* Theme dots (used in Settings > Appearance) */
+.theme-dot {
+  width: 24px; height: 24px; border-radius: 50%;
+  cursor: pointer; border: 2px solid transparent;
+  transition: transform 0.15s ease-out;
+}
+.theme-dot:hover { transform: scale(1.15); }
+.theme-dot.active { border-color: var(--text); }
+/* Settings accordion */
+.settings-section { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+.settings-section-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px; cursor: pointer; font-size: 14px; font-weight: 600;
+  background: var(--surface); user-select: none;
+}
+.settings-section-header:hover { background: var(--bg); }
+.settings-section-header:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
+.settings-chevron { font-size: 11px; color: var(--muted); transition: transform 0.15s; }
+.settings-section.open .settings-chevron { transform: rotate(90deg); }
+.settings-section-body {
+  max-height: 0;
+  overflow: hidden;
+  padding: 0 16px;
+  transition: max-height 0.25s ease-out, padding 0.25s ease-out;
+}
+.settings-section.open .settings-section-body {
+  max-height: 2000px;
+  padding: 16px;
+  border-top: 1px solid var(--border);
+}
+.danger-header { color: var(--danger); }
+
+/* Provider test status */
+.provider-test-status { font-size: 11px; margin-top: 6px; min-height: 16px; }
+.provider-test-status.ok { color: var(--teal); }
+.provider-test-status.fail { color: var(--danger); }
+.provider-test-status.pending { color: var(--muted); }
+.provider-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.05em;
+  text-transform: uppercase; padding: 2px 6px;
+  border-radius: 4px; background: var(--amber-light); color: var(--amber);
+  margin-left: 8px;
+}
+
+/* Ollama setup guide */
+.guide-step {
+  display: flex; gap: 12px; margin-bottom: 18px; align-items: flex-start;
+}
+.guide-step-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--teal); color: var(--btn-on-accent, #eceff4);
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.guide-step-body { flex: 1; }
+.guide-step-body p { font-size: 13px; color: var(--muted); margin-bottom: 8px; line-height: 1.5; }
+.code-block {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px 12px;
+  font-family: monospace; font-size: 12px;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px; gap: 10px;
+}
+.code-block span { flex: 1; word-break: break-all; }
+.copy-btn {
+  font-size: 11px; padding: 3px 8px;
+  border: 1px solid var(--border); border-radius: 4px;
+  background: var(--surface); cursor: pointer; font-family: inherit;
+  flex-shrink: 0; white-space: nowrap;
+}
+.copy-btn:hover { background: var(--bg); }
+.copy-btn.copied { color: var(--teal); border-color: var(--teal); }
+.provider-card.ollama-card { border-style: dashed; }
+.ollama-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.ollama-fields input {
+  padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px;
+  font-size: 13px; font-family: inherit;
+  background: var(--bg); color: var(--text); width: 100%;
+}
+.ollama-fields label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 3px; }
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 8px;
+  background: var(--teal);
+  color: var(--btn-on-accent, #eceff4);
+  padding: 8px 16px;
+  border-radius: 0 0 6px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  z-index: 9999;
+}
+.skip-link:focus { top: 0; }
+
+/* Screen reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Validation state */
+input[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  border-color: var(--danger) !important;
+  outline: 1px solid var(--danger);
+}
+
+/* Inline form errors */
+.form-error {
+  color: var(--danger);
+  font-size: 12px;
+  margin-top: 6px;
+  display: none;
+}
+.form-error.visible { display: block; }
+
+/* Focus styles for keyboard navigation */
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+/* Responsive layout */
+@media (max-width: 700px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+  .header-top {
+    flex-wrap: wrap;
+  }
+  .header-controls {
+    flex-wrap: wrap;
+  }
+  /* Pipeline: horizontal scroll with snap on mobile */
+  .pipeline-cols {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 12px;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .pipeline-col {
+    min-width: 240px;
+    width: 240px;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+  /* Scroll hint indicator */
+  #pipeline::after {
+    content: '← swipe →';
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+  </style>
+</head>
+<body>
+  <noscript><p style="padding:20px;font-family:sans-serif;background:#bf616a;color:#fff;">JavaScript is required to run BizDev Dashboard.</p></noscript>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="app">
+    <header id="header"></header>
+    <main id="main-content">
+      <section id="pipeline"></section>
+      <section id="income"></section>
+      <section id="capacity"></section>
+      <section id="actions"></section>
+      <section id="chat"></section>
+    </main>
+  </div>
+  <script>
+    const DEFAULT_DATA = {
+      freelancer: {
+        name: 'Alex Morgan',
+        role: 'Digital Strategy Consultant',
+        dayRate: 450,
+        annualTarget: 60000,
+        ytdIncome: 38200,
+      },
+
+      pipeline: {
+        leads: [
+          { client: 'Trussell Trust', project: 'Digital strategy review', value: 3200 },
+          { client: 'Locality', project: 'Website audit', value: 1800 },
+          { client: 'NCVO', project: 'Content strategy', value: 2700 },
+        ],
+        proposals: [
+          { client: 'Mencap', project: 'Digital transformation', value: 6750 },
+        ],
+        active: [
+          { client: 'Shelter', project: 'Campaign planning', value: 5400 },
+          { client: 'FareShare', project: 'Impact report', value: 3150 },
+          { client: 'Groundwork Trust', project: 'Digital strategy', value: 7200 },
+          { client: 'Crisis', project: 'Newsletter strategy', value: 2250 },
+        ],
+        invoiced: [],
+        paid: [],
+      },
+
+      income: {
+        months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        actuals: [4200, 6300, 5400, 7650, 3150, 5850, 4500, 6750, 0, 0, 0, 0],
+      },
+
+      capacity: {
+        weekHours: 35,
+        loggedHours: 28,
+        byClient: [
+          { client: 'Groundwork Trust', hours: 10 },
+          { client: 'Shelter', hours: 8 },
+          { client: 'FareShare', hours: 6 },
+          { client: 'Crisis', hours: 4 },
+        ],
+      },
+
+      actions: [
+        { text: 'Send proposal to Mencap — discovery call was 3 days ago', tag: 'Proposal', urgency: 'urgent' },
+        { text: 'Check in with Groundwork Trust — project at 80% complete', tag: 'Client', urgency: 'normal' },
+        { text: 'Prepare for NCVO scoping call — confirm agenda and send brief', tag: 'Lead', urgency: 'amber' },
+      ],
+    };
+
+    function getMode() {
+      return localStorage.getItem('bizdev-mode') || 'demo';
+    }
+
+    function setMode(mode) {
+      localStorage.setItem('bizdev-mode', mode);
+    }
+
+    function storageKey() {
+      return getMode() === 'live' ? 'bizdev-data' : 'bizdev-demo-data';
+    }
+
+    function loadData() {
+      try {
+        const saved = localStorage.getItem(storageKey());
+        if (!saved) return JSON.parse(JSON.stringify(DEFAULT_DATA));
+        const data = JSON.parse(saved);
+        // Migrate: ensure pipeline has all columns
+        if (data.pipeline && !Array.isArray(data.pipeline.paid)) {
+          data.pipeline.paid = [];
+        }
+        return data;
+      } catch {
+        return JSON.parse(JSON.stringify(DEFAULT_DATA));
+      }
+    }
+
+    function saveData(data) {
+      try {
+        localStorage.setItem(storageKey(), JSON.stringify(data));
+      } catch (e) {
+        if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+          console.warn('BizDev Dashboard: localStorage quota exceeded — data not saved.');
+        }
+      }
+    }
+
+    // NOTE: openSettings() interpolates name, hint, and url directly into innerHTML/href.
+    // If PROVIDERS ever becomes dynamic, sanitize those fields. url must start with https://.
+    const PROVIDERS = {
+      claude:  { name: 'Claude',   hint: 'Get your API key',  url: 'https://console.anthropic.com',           placeholder: 'sk-ant-...' },
+      gemini:  { name: 'Gemini',   hint: 'Get your API key',  url: 'https://aistudio.google.com/apikey',      placeholder: 'AIza...' },
+      chatgpt: { name: 'ChatGPT',  hint: 'Get your API key',  url: 'https://platform.openai.com/api-keys',    placeholder: 'sk-...' },
+      mistral: { name: 'Mistral',  hint: 'Get your API key',  url: 'https://console.mistral.ai/api-keys',     placeholder: 'your-key...' },
+      ollama: { name: 'Ollama', hint: 'Runs on your computer — no API key needed', url: 'https://ollama.com', placeholder: '', isLocal: true },
+    };
+
+    const ACCENT_COLORS = [
+      { color: '#ebcb8b', light: '#3d3525', name: 'Aurora Yellow' },
+      { color: '#88c0d0', light: '#2a3d45', name: 'Frost Blue' },
+      { color: '#81a1c1', light: '#283545', name: 'Frost' },
+      { color: '#5e81ac', light: '#243042', name: 'Frost Dark' },
+      { color: '#a3be8c', light: '#2a3528', name: 'Aurora Green' },
+      { color: '#b48ead', light: '#332a35', name: 'Aurora Purple' },
+      { color: '#d08770', light: '#3a2a25', name: 'Aurora Orange' },
+    ];
+
+    function accentNeedsDarkText(hex) {
+      // Returns true if the accent color is light enough to need dark text
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      // Relative luminance (simplified)
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      return luminance > 0.55;
+    }
+
+    function applyAccent(color) {
+      const accent = ACCENT_COLORS.find(a => a.color === color) || ACCENT_COLORS[0];
+      const r = document.documentElement.style;
+      r.setProperty('--teal', accent.color);
+      r.setProperty('--teal-light', accent.light);
+      // Ensure button text is legible against the accent background
+      r.setProperty('--btn-on-accent', accentNeedsDarkText(accent.color) ? '#2e3440' : '#eceff4');
+      localStorage.setItem('bizdev-accent', color);
+      if (incomeChart) { incomeChart.destroy(); incomeChart = null; }
+      if (document.getElementById('income')?.querySelector('canvas')) {
+        renderIncome();
+      }
+    }
+
+    function initTheme() {
+      applyAccent(localStorage.getItem('bizdev-accent') || ACCENT_COLORS[0].color);
+    }
+
+    function getActiveModel() {
+      return localStorage.getItem('bizdev-active-model') || 'claude';
+    }
+    function setActiveModel(model) {
+      localStorage.setItem('bizdev-active-model', model);
+    }
+    function getProviderKey(model) {
+      return localStorage.getItem('bizdev-key-' + model) || '';
+    }
+    function setProviderKey(model, key) {
+      localStorage.setItem('bizdev-key-' + model, key.trim());
+    }
+    function isHideFinancials() {
+      return localStorage.getItem('bizdev-hide-financials') === 'true';
+    }
+
+    async function testProviderKey(id, statusEl) {
+      if (!statusEl) return;
+      const apiKey = getProviderKey(id);
+      if (!apiKey && id !== 'ollama') {
+        statusEl.className = 'provider-test-status fail';
+        statusEl.textContent = '✗ No key saved yet';
+        return;
+      }
+
+      statusEl.className = 'provider-test-status pending';
+      statusEl.textContent = 'Testing…';
+
+      try {
+        let url, headers, body;
+
+        if (id === 'claude') {
+          url = 'https://api.anthropic.com/v1/messages';
+          headers = {
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+            'anthropic-dangerous-allow-browser': 'true',
+          };
+          body = JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 1, messages: [{ role: 'user', content: 'hi' }] });
+        } else if (id === 'gemini') {
+          url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+          headers = { 'content-type': 'application/json' };
+          body = JSON.stringify({ contents: [{ parts: [{ text: 'hi' }] }] });
+        } else if (id === 'ollama') {
+          const ollamaUrl = localStorage.getItem('bizdev-ollama-url') || 'http://localhost:11434/v1';
+          const ollamaModel = localStorage.getItem('bizdev-ollama-model') || 'llama3.2';
+          url = ollamaUrl.replace(/\/$/, '') + '/chat/completions';
+          headers = { 'content-type': 'application/json' };
+          body = JSON.stringify({ model: ollamaModel, max_tokens: 1, messages: [{ role: 'user', content: 'hi' }] });
+        } else {
+          const urls = { chatgpt: 'https://api.openai.com/v1/chat/completions', mistral: 'https://api.mistral.ai/v1/chat/completions' };
+          const models = { chatgpt: 'gpt-4o-mini', mistral: 'mistral-small-latest' };
+          url = urls[id];
+          headers = { 'Authorization': `Bearer ${apiKey}`, 'content-type': 'application/json' };
+          body = JSON.stringify({ model: models[id], max_tokens: 1, messages: [{ role: 'user', content: 'hi' }] });
+        }
+
+        const res = await fetch(url, { method: 'POST', headers, body });
+        if (res.ok || res.status === 400) {
+          statusEl.className = 'provider-test-status ok';
+          statusEl.textContent = '✓ Connected';
+        } else {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error?.message || `HTTP ${res.status}`);
+        }
+      } catch (e) {
+        statusEl.className = 'provider-test-status fail';
+        statusEl.textContent = `✗ ${e.message.length > 60 ? e.message.slice(0, 57) + '…' : e.message}`;
+      }
+    }
+
+    function renderOllamaCard(slot, overlay) {
+  if (!slot) return;
+  const isActive = getActiveModel() === 'ollama';
+  const savedUrl = localStorage.getItem('bizdev-ollama-url') || 'http://localhost:11434/v1';
+  const savedModel = localStorage.getItem('bizdev-ollama-model') || 'llama3.2';
+
+  slot.innerHTML = `
+    <div class="provider-card ollama-card ${isActive ? 'active' : ''}" id="card-ollama">
+      <div class="provider-header">
+        <span class="provider-name">Ollama <span class="provider-badge">Local &middot; Advanced</span></span>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;">
+          <input type="radio" name="activeModel" class="provider-radio" value="ollama" ${isActive ? 'checked' : ''}>
+          Set as active
+        </label>
+      </div>
+      <div class="provider-hint" style="margin-bottom:10px;">Runs AI locally on your computer — free and completely private. Requires some setup.</div>
+      <div class="ollama-fields">
+        <div>
+          <label for="ollama-url">Server URL</label>
+          <input id="ollama-url" type="text" placeholder="http://localhost:11434/v1" autocomplete="off" spellcheck="false">
+        </div>
+        <div>
+          <label for="ollama-model">Model</label>
+          <input id="ollama-model" type="text" placeholder="llama3.2" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:6px;">
+        <button class="btn-sm" id="ollama-guide-btn">Setup guide &rarr;</button>
+        <button class="btn-sm" id="ollama-test-btn">Test</button>
+        <button class="btn btn-primary" id="ollama-save-btn">Save</button>
+      </div>
+      <div class="provider-test-status" id="status-ollama"></div>
+    </div>
+  `;
+
+  // Set field values safely via DOM
+  document.getElementById('ollama-url').value = savedUrl;
+  document.getElementById('ollama-model').value = savedModel;
+
+  // Active model radio — in-place update (same pattern as cloud providers)
+  slot.querySelector('input[name="activeModel"]').addEventListener('change', e => {
+    setActiveModel(e.target.value);
+    renderChat();
+    overlay.querySelectorAll('.provider-card').forEach(card => {
+      card.classList.toggle('active', card.id === 'card-' + e.target.value);
+    });
+  });
+
+  // Save
+  document.getElementById('ollama-save-btn').addEventListener('click', async () => {
+    const url = document.getElementById('ollama-url').value.trim() || 'http://localhost:11434/v1';
+    const model = document.getElementById('ollama-model').value.trim() || 'llama3.2';
+    localStorage.setItem('bizdev-ollama-url', url);
+    localStorage.setItem('bizdev-ollama-model', model);
+    const statusEl = document.getElementById('status-ollama');
+    await testProviderKey('ollama', statusEl);
+  });
+
+  // Test
+  document.getElementById('ollama-test-btn').addEventListener('click', async () => {
+    const url = document.getElementById('ollama-url').value.trim() || 'http://localhost:11434/v1';
+    const model = document.getElementById('ollama-model').value.trim() || 'llama3.2';
+    localStorage.setItem('bizdev-ollama-url', url);
+    localStorage.setItem('bizdev-ollama-model', model);
+    const statusEl = document.getElementById('status-ollama');
+    await testProviderKey('ollama', statusEl);
+  });
+
+  // Setup guide
+  document.getElementById('ollama-guide-btn').addEventListener('click', () => openOllamaGuide());
+}
+
+    let incomeChart = null;
+    let incomeEditOpen = false;
+
+    // ── i18n ─────────────────────────────────────────────────────────────
+    const TRANSLATIONS = {
+      en: {
+        demo:'Demo', live:'Live', switchToLive:'Switch to Live', switchToDemo:'Switch to Demo',
+        settingsBtn:'Settings', annualTargetProgress:'Annual target progress', of:'of',
+        pipeline:'Pipeline', leads:'Leads', proposals:'Proposals', active:'Active',
+        invoiced:'Invoiced', paid:'Paid', addCard:'+ Add',
+        income:'Income', ytdTotal:'YTD total', bestMonth:'Best month',
+        monthlyAverage:'Monthly average', projectedYearEnd:'Projected year-end',
+        chartUnavailable:'Chart unavailable — no network connection.',
+        timeCapacity:'Time & Capacity — this week', available:'available',
+        overbooked:'Overbooked', logTime:'Log time', logTimeBtn:'Log time',
+        noActiveProjects:'No active projects',
+        nextActions:'Next actions',
+        noActionsEmpty:'No actions yet. Use the + button above to add one, or describe it to Ask AI.',
+        urgentLabel:'Urgent', mediumLabel:'Medium priority', normalLabel:'Normal priority', urgencyLabel:'Priority',
+        askProvider:'Ask', updateBtn:'Update',
+        poweredBy:'Powered by', noApiKey:'No API key set for', openSettingsLink:'Open Settings',
+        thinking:'Thinking\u2026', updating:'Updating\u2026',
+        describeChanges:"Describe what\u2019s changed and I\u2019ll update your dashboard.",
+        lastUpdate:'Last update: ',
+        chatInputLabel:'Describe changes to your dashboard',
+        chatPlaceholder:"e.g. I just invoiced FareShare and landed a new project with Barnardo\u2019s worth \u00a33,500",
+        language:'Language', hideAmounts:'Hide amounts', showAmounts:'Show amounts',
+        addAction:'Add action', actionPlaceholder:'e.g. Follow up with Client X', addActionBtn:'Add',
+        parseError:"Couldn\u2019t parse the response \u2014 try rephrasing.", genericError:'Something went wrong. Try again.',
+        undoUpdate:'Undo last update', weekHoursLabel:'Weekly hours available',
+        editIncome:'Edit months', doneEditing:'Done',
+        tourWelcomeTitle:'Welcome to your BizDev Dashboard',
+        tourWelcomeText:"Your data lives entirely on this device — nothing is sent anywhere. The dashboard works fully offline and without AI. AI assistance is optional: if you add an API key, you can update your data in plain English. Here\u2019s a quick tour.",
+        tourPipelineTitle:'Pipeline',
+        tourPipelineText:'Track leads, proposals, active projects, and invoices. Drag cards between columns as deals progress. Click any card to add notes.',
+        tourIncomeTitle:'Income',
+        tourIncomeText:'See your monthly revenue at a glance. The chart shows actuals for months with data and projections beyond. Use Edit months to update figures manually.',
+        tourCapacityTitle:'Time & Capacity',
+        tourCapacityText:"See how this week's hours are split across clients. Use the Log time button to track hours as you work.",
+        tourChatTitle:'Ask AI',
+        tourChatText:'Describe changes in plain English and the dashboard updates automatically. Works with Claude, Gemini, ChatGPT, Mistral, or Ollama — or manage everything manually without AI.',
+        tourModeTitle:'Demo vs Live mode',
+        tourModeText:"You're in Demo mode — nothing is saved. Switch to Live to use your own data. Export anytime for a backup.",
+        tourReadyTitle:"You're ready!",
+        tourReadyText:'Switch to Live mode to get started, or keep exploring the demo. You can restart this tour anytime with the ? button.',
+      },
+      es: {
+        demo:'Demo', live:'En directo', switchToLive:'Cambiar a en directo', switchToDemo:'Cambiar a demo',
+        settingsBtn:'Ajustes', annualTargetProgress:'Progreso del objetivo anual', of:'de',
+        pipeline:'Pipeline', leads:'Clientes potenciales', proposals:'Propuestas', active:'Activos',
+        invoiced:'Facturado', paid:'Pagado', addCard:'+ A\u00f1adir',
+        income:'Ingresos', ytdTotal:'Total hasta hoy', bestMonth:'Mejor mes',
+        monthlyAverage:'Media mensual', projectedYearEnd:'Proyecci\u00f3n fin de a\u00f1o',
+        chartUnavailable:'Gr\u00e1fico no disponible — sin conexi\u00f3n.',
+        timeCapacity:'Tiempo y capacidad — esta semana', available:'disponibles',
+        overbooked:'Sobrecargado', logTime:'Registrar tiempo', logTimeBtn:'Registrar',
+        noActiveProjects:'Sin proyectos activos',
+        nextActions:'Pr\u00f3ximas acciones',
+        noActionsEmpty:'Sin acciones. Usa el bot\u00f3n + para a\u00f1adir una, o descr\u00edbela al asistente de IA.',
+        urgentLabel:'Urgente', mediumLabel:'Prioridad media', normalLabel:'Prioridad normal', urgencyLabel:'Prioridad',
+        askProvider:'Preguntar a', updateBtn:'Actualizar',
+        poweredBy:'Impulsado por', noApiKey:'Sin clave API para', openSettingsLink:'Abrir ajustes',
+        thinking:'Pensando\u2026', updating:'Actualizando\u2026',
+        describeChanges:'Describe los cambios y actualizar\u00e9 tu panel.',
+        lastUpdate:'\u00daltima actualizaci\u00f3n: ',
+        chatInputLabel:'Describe los cambios en tu panel',
+        chatPlaceholder:'p.ej. Acabo de facturar a FareShare y conseguido un nuevo proyecto por \u00a33.500',
+        language:'Idioma', hideAmounts:'Ocultar importes', showAmounts:'Mostrar importes',
+        addAction:'Agregar acci\u00f3n', actionPlaceholder:'p.ej. Hacer seguimiento con Cliente X', addActionBtn:'Agregar',
+        parseError:'No se pudo interpretar la respuesta \u2014 intenta reformular.', genericError:'Algo sali\u00f3 mal. Int\u00e9ntalo de nuevo.',
+        undoUpdate:'Deshacer \u00faltima actualizaci\u00f3n', weekHoursLabel:'Horas semanales disponibles',
+        editIncome:'Editar meses', doneEditing:'Listo',
+        tourWelcomeTitle:'Bienvenido a tu panel BizDev',
+        tourWelcomeText:'Tus datos viven en este dispositivo — nada se env\u00eda a ning\u00fan servidor. El panel funciona completamente sin conexi\u00f3n y sin IA. La IA es opcional: si a\u00f1ades una clave API, puedes actualizar tus datos en lenguaje natural. Aqu\u00ed tienes un recorrido r\u00e1pido.',
+        tourPipelineTitle:'Pipeline',
+        tourPipelineText:'Sigue clientes potenciales, propuestas, proyectos activos y facturas. Arrastra tarjetas entre columnas. Haz clic en una tarjeta para a\u00f1adir notas.',
+        tourIncomeTitle:'Ingresos',
+        tourIncomeText:'Ve tus ingresos mensuales de un vistazo. El gr\u00e1fico muestra datos reales y proyecciones. Usa Editar meses para actualizar cifras.',
+        tourCapacityTitle:'Tiempo y capacidad',
+        tourCapacityText:'Consulta c\u00f3mo se distribuyen tus horas esta semana. Usa el bot\u00f3n Registrar para registrar horas.',
+        tourChatTitle:'Asistente IA',
+        tourChatText:'Describe los cambios con tus palabras y el panel se actualiza autom\u00e1ticamente. Funciona con Claude, Gemini, ChatGPT, Mistral u Ollama — o sin IA.',
+        tourModeTitle:'Modo Demo vs. En directo',
+        tourModeText:'Est\u00e1s en modo Demo — los datos no se guardan. Cambia a En directo para usar tus propios datos. Exporta cuando quieras.',
+        tourReadyTitle:'\u00a1Listo!',
+        tourReadyText:'Cambia a modo En directo para empezar, o sigue explorando el demo. Puedes reiniciar el recorrido con el bot\u00f3n ?',
+      },
+      fr: {
+        demo:'D\u00e9mo', live:'En direct', switchToLive:'Passer en direct', switchToDemo:'Passer en d\u00e9mo',
+        settingsBtn:'Param\u00e8tres', annualTargetProgress:"Progression de l\u2019objectif annuel", of:'sur',
+        pipeline:'Pipeline', leads:'Prospects', proposals:'Propositions', active:'En cours',
+        invoiced:'Factur\u00e9', paid:'Pay\u00e9', addCard:'+ Ajouter',
+        income:'Revenus', ytdTotal:'Total depuis janvier', bestMonth:'Meilleur mois',
+        monthlyAverage:'Moyenne mensuelle', projectedYearEnd:"Projection fin d\u2019ann\u00e9e",
+        chartUnavailable:'Graphique indisponible — pas de connexion.',
+        timeCapacity:'Temps et capacit\u00e9 — cette semaine', available:'disponibles',
+        overbooked:'Surcharg\u00e9', logTime:'Saisir le temps', logTimeBtn:'Saisir',
+        noActiveProjects:'Aucun projet actif',
+        nextActions:'Prochaines actions',
+        noActionsEmpty:"Aucune action. Utilisez le bouton + pour en ajouter une, ou d\u00e9crivez-la \u00e0 l\u2019IA.",
+        urgentLabel:'Urgent', mediumLabel:'Priorit\u00e9 moyenne', normalLabel:'Priorit\u00e9 normale', urgencyLabel:'Priorit\u00e9',
+        askProvider:'Demander \u00e0', updateBtn:'Mettre \u00e0 jour',
+        poweredBy:'Propuls\u00e9 par', noApiKey:'Aucune cl\u00e9 API pour', openSettingsLink:'Ouvrir les param\u00e8tres',
+        thinking:'R\u00e9flexion\u2026', updating:'Mise \u00e0 jour\u2026',
+        describeChanges:'D\u00e9crivez les changements et je mettrai \u00e0 jour votre tableau de bord.',
+        lastUpdate:'Derni\u00e8re mise \u00e0 jour\u00a0: ',
+        chatInputLabel:'D\u00e9crivez les changements',
+        chatPlaceholder:'ex. Je viens de facturer FareShare et obtenu un nouveau projet pour \u00a33\u00a0500',
+        language:'Langue', hideAmounts:'Masquer les montants', showAmounts:'Afficher les montants',
+        addAction:'Ajouter une action', actionPlaceholder:'ex. Relancer le Client X', addActionBtn:'Ajouter',
+        parseError:'Impossible d\u2019analyser la r\u00e9ponse \u2014 essayez de reformuler.', genericError:'Une erreur est survenue. R\u00e9essayez.',
+        undoUpdate:'Annuler la derni\u00e8re mise \u00e0 jour', weekHoursLabel:'Heures disponibles par semaine',
+        editIncome:'Modifier les mois', doneEditing:'Termin\u00e9',
+        tourWelcomeTitle:'Bienvenue dans votre tableau de bord BizDev',
+        tourWelcomeText:"Vos donn\u00e9es restent sur cet appareil \u2014 rien n\u2019est envoy\u00e9 ailleurs. Le tableau de bord fonctionne hors ligne et sans IA. L\u2019IA est optionnelle\u00a0: avec une cl\u00e9 API, vous pouvez mettre \u00e0 jour vos donn\u00e9es en langue naturelle. Voici un tour rapide.",
+        tourPipelineTitle:'Pipeline',
+        tourPipelineText:'Suivez vos prospects, propositions, projets en cours et factures. Glissez les cartes entre les colonnes. Cliquez pour ajouter des notes.',
+        tourIncomeTitle:'Revenus',
+        tourIncomeText:'Visualisez vos revenus mensuels. Le graphique montre les donn\u00e9es r\u00e9elles et les projections. Utilisez Modifier les mois pour mettre \u00e0 jour les chiffres.',
+        tourCapacityTitle:'Temps et capacit\u00e9',
+        tourCapacityText:'Voyez comment vos heures sont r\u00e9parties cette semaine. Utilisez le bouton Saisir pour enregistrer votre temps.',
+        tourChatTitle:"Demander \u00e0 l\u2019IA",
+        tourChatText:"D\u00e9crivez les changements et le tableau de bord se met \u00e0 jour automatiquement. Fonctionne avec Claude, Gemini, ChatGPT, Mistral ou Ollama \u2014 ou sans IA.",
+        tourModeTitle:'Mode D\u00e9mo vs En direct',
+        tourModeText:"Vous \u00eates en mode D\u00e9mo \u2014 rien n\u2019est sauvegard\u00e9. Passez en Direct pour utiliser vos propres donn\u00e9es.",
+        tourReadyTitle:'Vous \u00eates pr\u00eat\u00a0!',
+        tourReadyText:'Passez en mode Direct pour d\u00e9marrer, ou continuez \u00e0 explorer. Relancez ce tour avec le bouton\u00a0?',
+      },
+      de: {
+        demo:'Demo', live:'Live', switchToLive:'Zu Live wechseln', switchToDemo:'Zu Demo wechseln',
+        settingsBtn:'Einstellungen', annualTargetProgress:'Fortschritt Jahresziel', of:'von',
+        pipeline:'Pipeline', leads:'Interessenten', proposals:'Angebote', active:'Aktiv',
+        invoiced:'In Rechnung gestellt', paid:'Bezahlt', addCard:'+ Hinzuf\u00fcgen',
+        income:'Einnahmen', ytdTotal:'Jahresumsatz bisher', bestMonth:'Bester Monat',
+        monthlyAverage:'Monatsdurchschnitt', projectedYearEnd:'Prognose Jahresende',
+        chartUnavailable:'Diagramm nicht verf\u00fcgbar — keine Netzwerkverbindung.',
+        timeCapacity:'Zeit & Kapazit\u00e4t — diese Woche', available:'verf\u00fcgbar',
+        overbooked:'\u00dcberlastet', logTime:'Zeit erfassen', logTimeBtn:'Erfassen',
+        noActiveProjects:'Keine aktiven Projekte',
+        nextActions:'N\u00e4chste Schritte',
+        noActionsEmpty:'Keine Aufgaben. Klicken Sie +, um eine hinzuzuf\u00fcgen, oder beschreiben Sie sie der KI.',
+        urgentLabel:'Dringend', mediumLabel:'Mittlere Priorit\u00e4t', normalLabel:'Normale Priorit\u00e4t', urgencyLabel:'Priorit\u00e4t',
+        askProvider:'Fragen an', updateBtn:'Aktualisieren',
+        poweredBy:'Betrieben von', noApiKey:'Kein API-Schl\u00fcssel f\u00fcr', openSettingsLink:'Einstellungen \u00f6ffnen',
+        thinking:'Nachdenken\u2026', updating:'Aktualisierung\u2026',
+        describeChanges:'Beschreiben Sie die \u00c4nderungen und ich aktualisiere Ihr Dashboard.',
+        lastUpdate:'Letzte Aktualisierung: ',
+        chatInputLabel:'\u00c4nderungen beschreiben',
+        chatPlaceholder:'z.B. Ich habe gerade FareShare in Rechnung gestellt und ein Projekt f\u00fcr \u00a33.500 gewonnen',
+        language:'Sprache', hideAmounts:'Betr\u00e4ge ausblenden', showAmounts:'Betr\u00e4ge anzeigen',
+        addAction:'Aktion hinzuf\u00fcgen', actionPlaceholder:'z.B. Nachfassen bei Kunde X', addActionBtn:'Hinzuf\u00fcgen',
+        parseError:'Antwort konnte nicht verarbeitet werden \u2014 bitte umformulieren.', genericError:'Etwas ist schiefgelaufen. Bitte erneut versuchen.',
+        undoUpdate:'Letzte Aktualisierung r\u00fcckg\u00e4ngig machen', weekHoursLabel:'Verf\u00fcgbare Stunden pro Woche',
+        editIncome:'Monate bearbeiten', doneEditing:'Fertig',
+        tourWelcomeTitle:'Willkommen in Ihrem BizDev-Dashboard',
+        tourWelcomeText:'Ihre Daten bleiben auf diesem Ger\u00e4t \u2014 nichts wird \u00fcbertragen. Das Dashboard funktioniert vollst\u00e4ndig offline und ohne KI. KI ist optional: Mit einem API-Schl\u00fcssel k\u00f6nnen Sie Ihre Daten in nat\u00fcrlicher Sprache aktualisieren. Hier ist eine kurze Tour.',
+        tourPipelineTitle:'Pipeline',
+        tourPipelineText:'Verfolgen Sie Interessenten, Angebote, aktive Projekte und Rechnungen. Ziehen Sie Karten zwischen Spalten. Klicken zum Bearbeiten.',
+        tourIncomeTitle:'Einnahmen',
+        tourIncomeText:'Sehen Sie Ihre monatlichen Einnahmen auf einen Blick. Das Diagramm zeigt Ist-Werte und Prognosen. Nutzen Sie Monate bearbeiten zum manuellen Aktualisieren.',
+        tourCapacityTitle:'Zeit \u0026 Kapazit\u00e4t',
+        tourCapacityText:'Sehen Sie, wie Ihre Stunden diese Woche verteilt sind. Nutzen Sie die Schaltfl\u00e4che Erfassen zum Zeittracking.',
+        tourChatTitle:'KI fragen',
+        tourChatText:'Beschreiben Sie \u00c4nderungen und das Dashboard aktualisiert sich automatisch. Funktioniert mit Claude, Gemini, ChatGPT, Mistral oder Ollama \u2014 oder ohne KI.',
+        tourModeTitle:'Demo vs. Live-Modus',
+        tourModeText:'Sie sind im Demo-Modus \u2014 nichts wird gespeichert. Wechseln Sie zu Live, um Ihre eigenen Daten zu nutzen.',
+        tourReadyTitle:'Sie sind bereit!',
+        tourReadyText:'Wechseln Sie in den Live-Modus, um zu starten, oder erkunden Sie weiter. Starten Sie die Tour mit der ?-Schaltfl\u00e4che neu.',
+      },
+      it: {
+        demo:'Demo', live:'Live', switchToLive:'Passa a live', switchToDemo:'Passa a demo',
+        settingsBtn:'Impostazioni', annualTargetProgress:'Progresso obiettivo annuale', of:'di',
+        pipeline:'Pipeline', leads:'Lead', proposals:'Proposte', active:'Attivi',
+        invoiced:'Fatturato', paid:'Pagato', addCard:'+ Aggiungi',
+        income:'Entrate', ytdTotal:'Totale da inizio anno', bestMonth:'Mese migliore',
+        monthlyAverage:'Media mensile', projectedYearEnd:'Previsione fine anno',
+        chartUnavailable:'Grafico non disponibile — nessuna connessione.',
+        timeCapacity:'Tempo e capacit\u00e0 — questa settimana', available:'disponibili',
+        overbooked:'Sovraccarico', logTime:'Registra tempo', logTimeBtn:'Registra',
+        noActiveProjects:'Nessun progetto attivo',
+        nextActions:'Prossime azioni',
+        noActionsEmpty:"Nessuna azione. Usa il pulsante + per aggiungerne una, o descrivila all\u2019IA.",
+        urgentLabel:'Urgente', mediumLabel:'Priorit\u00e0 media', normalLabel:'Priorit\u00e0 normale', urgencyLabel:'Priorit\u00e0',
+        askProvider:'Chiedi a', updateBtn:'Aggiorna',
+        poweredBy:'Sviluppato da', noApiKey:'Nessuna chiave API per', openSettingsLink:'Apri impostazioni',
+        thinking:'Pensando\u2026', updating:'Aggiornamento\u2026',
+        describeChanges:'Descrivi le modifiche e aggiorner\u00f2 il tuo cruscotto.',
+        lastUpdate:'Ultimo aggiornamento: ',
+        chatInputLabel:'Descrivi le modifiche',
+        chatPlaceholder:'es. Ho appena fatturato a FareShare e ottenuto un nuovo progetto per \u00a33.500',
+        language:'Lingua', hideAmounts:'Nascondi importi', showAmounts:'Mostra importi',
+        addAction:'Aggiungi azione', actionPlaceholder:'es. Seguire il Cliente X', addActionBtn:'Aggiungi',
+        parseError:'Impossibile analizzare la risposta \u2014 prova a riformulare.', genericError:'Qualcosa \u00e8 andato storto. Riprova.',
+        undoUpdate:'Annulla ultimo aggiornamento', weekHoursLabel:'Ore settimanali disponibili',
+        editIncome:'Modifica mesi', doneEditing:'Fatto',
+        tourWelcomeTitle:'Benvenuto nel tuo BizDev Dashboard',
+        tourWelcomeText:"I tuoi dati rimangono su questo dispositivo \u2014 nulla viene inviato altrove. Il dashboard funziona completamente offline e senza IA. L\u2019IA \u00e8 opzionale: con una chiave API puoi aggiornare i dati in linguaggio naturale. Ecco un rapido tour.",
+        tourPipelineTitle:'Pipeline',
+        tourPipelineText:'Monitora lead, proposte, progetti attivi e fatture. Trascina le schede tra le colonne. Clicca per aggiungere note.',
+        tourIncomeTitle:'Entrate',
+        tourIncomeText:'Visualizza le tue entrate mensili. Il grafico mostra dati reali e proiezioni. Usa Modifica mesi per aggiornare i valori.',
+        tourCapacityTitle:'Tempo e capacit\u00e0',
+        tourCapacityText:"Vedi come sono distribuite le tue ore questa settimana. Usa il pulsante Registra per tracciare il tempo.",
+        tourChatTitle:"Chiedi all\u2019IA",
+        tourChatText:"Descrivi le modifiche e il cruscotto si aggiorna automaticamente. Funziona con Claude, Gemini, ChatGPT, Mistral o Ollama \u2014 o senza IA.",
+        tourModeTitle:'Modalit\u00e0 Demo vs Live',
+        tourModeText:'Sei in modalit\u00e0 Demo \u2014 nulla viene salvato. Passa a Live per usare i tuoi dati. Esporta quando vuoi.',
+        tourReadyTitle:'Sei pronto!',
+        tourReadyText:'Passa alla modalit\u00e0 Live per iniziare, o continua a esplorare. Riavvia il tour con il pulsante ?',
+      },
+    };
+
+    const LANG_NAMES = { en:'English', es:'Español', fr:'Français', de:'Deutsch', it:'Italiano' };
+
+    function getCurrentLang() {
+      const saved = localStorage.getItem('bizdev-lang');
+      if (saved && TRANSLATIONS[saved]) return saved;
+      const nav = (navigator.language || 'en').slice(0, 2).toLowerCase();
+      return TRANSLATIONS[nav] ? nav : 'en';
+    }
+    function setLang(lang) {
+      localStorage.setItem('bizdev-lang', lang);
+      document.documentElement.lang = lang;
+      if (DATA) {
+        if (lang !== 'en' && DATA.freelancer.currency !== '€') {
+          DATA.freelancer.currency = '€';
+          saveData(DATA);
+        } else if (lang === 'en' && DATA.freelancer.currency === '€') {
+          DATA.freelancer.currency = '£';
+          saveData(DATA);
+        }
+      }
+      renderAll();
+    }
+    function t(key) {
+      const lang = getCurrentLang();
+      return (TRANSLATIONS[lang]?.[key]) ?? TRANSLATIONS.en[key] ?? key;
+    }
+
+    function langSwitcherHTML() {
+      const cur = getCurrentLang();
+      const opts = Object.keys(TRANSLATIONS)
+        .map(l => `<option value="${l}" ${l === cur ? 'selected' : ''}>${LANG_NAMES[l]}</option>`)
+        .join('');
+      return `<select id="langSwitch" class="btn-sm" style="padding:3px 6px;font-size:11px;" aria-label="${t('language')}">${opts}</select>`;
+    }
+
+    // ── end i18n ──────────────────────────────────────────────────────────
+
+    // Trap keyboard focus inside a modal container.
+    // Returns a cleanup function; call it when closing.
+    function trapFocus(container, onEscape) {
+      const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      const getFocusable = () => [...container.querySelectorAll(FOCUSABLE)];
+      const trigger = document.activeElement;
+
+      // Focus first element
+      const focusable = getFocusable();
+      if (focusable.length) focusable[0].focus();
+
+      function onKeyDown(e) {
+        if (e.key !== 'Tab') return;
+        const els = getFocusable();
+        if (!els.length) return;
+        const first = els[0];
+        const last = els[els.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+        } else {
+          if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      }
+
+      function onKeyEsc(e) {
+        if (e.key === 'Escape') {
+          cleanup();
+          if (onEscape) {
+            onEscape();
+          } else {
+            container.closest('.modal-overlay')?.remove();
+          }
+        }
+      }
+
+      function cleanup() {
+        container.removeEventListener('keydown', onKeyDown);
+        document.removeEventListener('keydown', onKeyEsc);
+        if (trigger && trigger.focus) trigger.focus();
+      }
+
+      container.addEventListener('keydown', onKeyDown);
+      document.addEventListener('keydown', onKeyEsc);
+
+      return cleanup;
+    }
+
+    function openSettings() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'settingsOverlay';
+
+  const cloudProviders = Object.entries(PROVIDERS).filter(([, p]) => !p.isLocal);
+  const currentAccent = localStorage.getItem('bizdev-accent') || ACCENT_COLORS[0].color;
+
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:580px;" id="settingsModal">
+      <button class="modal-close" aria-label="Close" id="settingsClose">&times;</button>
+      <h3>Settings</h3>
+
+      <div class="settings-section" id="section-profile">
+        <div class="settings-section-header" role="button" tabindex="0" aria-expanded="false" aria-controls="section-profile-body">
+          <span>Profile &amp; Targets</span>
+          <span class="settings-chevron">&#9654;</span>
+        </div>
+        <div class="settings-section-body" id="section-profile-body">
+          <div class="onboarding-row">
+            <div class="onboarding-field">
+              <label for="prof-name">Your name</label>
+              <input id="prof-name" type="text" autocomplete="name">
+            </div>
+            <div class="onboarding-field">
+              <label for="prof-role">Your role / title</label>
+              <input id="prof-role" type="text" autocomplete="organization-title">
+            </div>
+          </div>
+          <div class="onboarding-row">
+            <div class="onboarding-field">
+              <label for="prof-currency">Currency</label>
+              <select id="prof-currency">
+                <option>£ GBP</option>
+                <option>$ USD</option>
+                <option>€ EUR</option>
+                <option>$ CAD</option>
+                <option>$ AUD</option>
+              </select>
+            </div>
+            <div class="onboarding-field">
+              <label for="prof-target">Annual target (optional)</label>
+              <input id="prof-target" type="number" placeholder="Leave blank for none" inputmode="numeric" autocomplete="off">
+            </div>
+          </div>
+          <div class="onboarding-row">
+            <div class="onboarding-field">
+              <label for="prof-yearend">Financial year end (DD/MM)</label>
+              <input id="prof-yearend" type="text" placeholder="05/04" inputmode="numeric" pattern="[0-9]{2}/[0-9]{2}" autocomplete="off">
+            </div>
+            <div class="onboarding-field">
+              <label for="prof-ytd">YTD income</label>
+              <input id="prof-ytd" type="number" placeholder="0" inputmode="numeric" autocomplete="off">
+            </div>
+          </div>
+          <div class="onboarding-field" style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <input type="checkbox" id="prof-vat" style="width:auto;">
+            <label for="prof-vat" style="text-transform:none;letter-spacing:0;font-size:14px;font-weight:400;cursor:pointer;">VAT registered</label>
+          </div>
+          <div id="prof-vatfields" style="display:none">
+            <div class="onboarding-row">
+              <div class="onboarding-field">
+                <label for="prof-vatnum">VAT number</label>
+                <input id="prof-vatnum" type="text" placeholder="GB123456789" autocomplete="off" spellcheck="false">
+              </div>
+              <div class="onboarding-field">
+                <label for="prof-vatrate">VAT rate (%)</label>
+                <input id="prof-vatrate" type="number" placeholder="20" inputmode="numeric" autocomplete="off" min="0" max="100">
+              </div>
+            </div>
+          </div>
+          <div class="onboarding-row">
+            <div class="onboarding-field">
+              <label for="prof-lang">Language</label>
+              <select id="prof-lang">
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="de">Deutsch</option>
+                <option value="it">Italiano</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+            <button class="btn btn-primary" id="prof-save">Save changes</button>
+            <span id="prof-saved" role="status" style="font-size:12px;color:var(--teal);display:none;">Saved ✓</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section" id="section-ai">
+        <div class="settings-section-header" role="button" tabindex="0" aria-expanded="false" aria-controls="section-ai-body">
+          <span>AI Models</span>
+          <span class="settings-chevron">&#9654;</span>
+        </div>
+        <div class="settings-section-body" id="section-ai-body">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:4px;">The "Ask AI" panel connects to an AI service to update your dashboard in plain English.</p>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Each cloud provider requires an API key from their website — usage may have a small cost. Or use Ollama (below) to run AI locally for free.</p>
+
+          ${cloudProviders.map(([id, p]) => {
+            const isActive = getActiveModel() === id;
+            return `
+              <div class="provider-card ${isActive ? 'active' : ''}" id="card-${id}">
+                <div class="provider-header">
+                  <span class="provider-name">${p.name}</span>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;">
+                    <input type="radio" name="activeModel" class="provider-radio" value="${id}" ${isActive ? 'checked' : ''}>
+                    Set as active
+                  </label>
+                </div>
+                <div class="provider-hint">
+                  <a href="${p.url}" target="_blank" rel="noopener" style="color:var(--teal);">${p.hint} &rarr;</a>
+                </div>
+                <div class="provider-input-row">
+                  <input type="password" id="key-${id}" placeholder="${p.placeholder}" autocomplete="off" spellcheck="false">
+                  <button class="btn-sm" id="test-${id}">Test</button>
+                  <button class="btn btn-primary" id="save-${id}">Save</button>
+                </div>
+                <div class="provider-test-status" id="status-${id}"></div>
+              </div>
+            `;
+          }).join('')}
+
+          <div id="ollamaCardSlot"></div>
+        </div>
+      </div>
+
+      <div class="settings-section" id="section-appearance">
+        <div class="settings-section-header" role="button" tabindex="0" aria-expanded="false" aria-controls="section-appearance-body">
+          <span>Appearance</span>
+          <span class="settings-chevron">&#9654;</span>
+        </div>
+        <div class="settings-section-body" id="section-appearance-body">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Choose an accent colour for the dashboard.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            ${ACCENT_COLORS.map(a =>
+              `<div class="theme-dot ${a.color === currentAccent ? 'active' : ''}" style="background:${a.color}" title="${a.name}" data-accent="${a.color}"></div>`
+            ).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section" id="section-data">
+        <div class="settings-section-header" role="button" tabindex="0" aria-expanded="false" aria-controls="section-data-body">
+          <span>Data</span>
+          <span class="settings-chevron">&#9654;</span>
+        </div>
+        <div class="settings-section-body" id="section-data-body">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:4px;"><strong>Export</strong></p>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:8px;">Download your live data. JSON is a full backup; CSV exports your pipeline for use in spreadsheets.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-sm" id="settingsExportBtn">Export JSON</button>
+            <button class="btn-sm" id="settingsExportCsvBtn">Export pipeline CSV</button>
+          </div>
+
+          <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+
+          <p style="font-size:13px;color:var(--muted);margin-bottom:4px;"><strong>Import</strong></p>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:8px;">Restore from a previously exported JSON file. This overwrites your current live data.</p>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <button class="btn-sm" id="settingsImportBtn">Import from file</button>
+            <span id="settingsImportConfirm" role="alert" style="display:none;font-size:12px;">
+              This will overwrite your live data — sure?
+              <button class="btn-sm" id="settingsImportYes" style="margin-left:4px;">Yes, import</button>
+              <button class="btn-sm" id="settingsImportNo" style="margin-left:2px;">Cancel</button>
+            </span>
+          </div>
+          <input type="file" id="settingsImportInput" class="import-input" accept=".json">
+          <p id="settingsImportStatus" role="alert" style="font-size:12px;color:var(--teal);margin-top:8px;display:none;"></p>
+
+          <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+
+          <a href="#" id="settingsTourLink" style="font-size:12px;color:var(--teal);">Take the tour &rarr;</a>
+        </div>
+      </div>
+
+      <div class="settings-section" id="section-yearend">
+        <div class="settings-section-header" role="button" tabindex="0" aria-expanded="false" aria-controls="section-yearend-body">
+          <span>Year End</span>
+          <span class="settings-chevron">&#9654;</span>
+        </div>
+        <div class="settings-section-body" id="section-yearend-body">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:8px;">At the end of your financial year, close the year to reset your income tracker for the new year. Your pipeline, actions, and all other data are kept.</p>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Closing the year will: reset monthly income to zero, reset YTD income to zero, and record the final total in your notes.</p>
+          <button class="btn-sm" id="yearEndBtn">Close financial year&hellip;</button>
+          <span id="yearEndConfirm" role="alert" style="display:none;margin-left:8px;font-size:12px;">
+            This will reset all income data for the new year.
+            <button class="btn btn-danger" id="yearEndConfirmYes" style="margin-left:6px;font-size:11px;padding:3px 10px;">Close the year</button>
+            <button class="btn-sm" id="yearEndConfirmNo" style="margin-left:4px;">Cancel</button>
+          </span>
+          <p id="yearEndDone" style="display:none;font-size:12px;color:var(--teal);margin-top:8px;"></p>
+        </div>
+      </div>
+
+      <div class="settings-section" id="section-danger">
+        <div class="settings-section-header" role="button" tabindex="0" aria-expanded="false" aria-controls="section-danger-body">
+          <span class="danger-header">Danger Zone</span>
+          <span class="settings-chevron">&#9654;</span>
+        </div>
+        <div class="settings-section-body" id="section-danger-body">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:4px;"><strong>Reset live data</strong></p>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Permanently delete all pipeline entries, income records, capacity data, and actions. Your settings and API keys are not affected.</p>
+          <button class="btn-sm" id="clearLiveDataBtn" style="color:var(--danger);border-color:var(--danger);">Reset live data&hellip;</button>
+          <span id="clearLiveConfirm" role="alert" style="display:none;margin-left:10px;font-size:12px;">
+            Are you sure? This cannot be undone.
+            <button class="btn btn-danger" id="clearLiveConfirmYes" style="margin-left:6px;font-size:11px;padding:3px 10px;">Yes, delete everything</button>
+            <button class="btn-sm" id="clearLiveConfirmNo" style="margin-left:4px;">Cancel</button>
+          </span>
+        </div>
+      </div>
+
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // Accordion — one section open at a time
+  const modal = document.getElementById('settingsModal');
+  function toggleSettingsSection(header) {
+    const section = header.parentElement;
+    const isOpen = section.classList.contains('open');
+    modal.querySelectorAll('.settings-section').forEach(s => {
+      s.classList.remove('open');
+      s.querySelector('.settings-section-header')?.setAttribute('aria-expanded', 'false');
+    });
+    if (!isOpen) {
+      section.classList.add('open');
+      header.setAttribute('aria-expanded', 'true');
+    }
+  }
+  modal.querySelectorAll('.settings-section-header').forEach(header => {
+    header.addEventListener('click', () => toggleSettingsSection(header));
+    header.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSettingsSection(header); }
+    });
+  });
+
+  const cleanupSettingsFocus = trapFocus(modal);
+  const closeSettings = () => { cleanupSettingsFocus(); overlay.remove(); };
+  document.getElementById('settingsClose').addEventListener('click', closeSettings);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeSettings(); });
+
+  // AI Models: set key values safely via DOM (not innerHTML)
+  cloudProviders.forEach(([id]) => {
+    const input = document.getElementById('key-' + id);
+    if (input) input.value = getProviderKey(id);
+  });
+
+  // Save + auto-test
+  cloudProviders.forEach(([id]) => {
+    document.getElementById('save-' + id).addEventListener('click', async () => {
+      const val = document.getElementById('key-' + id).value.trim();
+      if (!val) return;
+      setProviderKey(id, val);
+      await testProviderKey(id, document.getElementById('status-' + id));
+    });
+    document.getElementById('test-' + id).addEventListener('click', async () => {
+      await testProviderKey(id, document.getElementById('status-' + id));
+    });
+  });
+
+  // Active model radio — in-place highlight update
+  modal.querySelectorAll('input[name="activeModel"]').forEach(radio => {
+    radio.addEventListener('change', e => {
+      setActiveModel(e.target.value);
+      renderChat();
+      modal.querySelectorAll('.provider-card').forEach(card => {
+        card.classList.toggle('active', card.id === 'card-' + e.target.value);
+      });
+    });
+  });
+
+  // Ollama card
+  renderOllamaCard(document.getElementById('ollamaCardSlot'), overlay);
+
+  // Accent dots — apply immediately, update active ring in place
+  modal.querySelectorAll('.theme-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      applyAccent(dot.dataset.accent);
+      modal.querySelectorAll('.theme-dot').forEach(d => {
+        d.classList.toggle('active', d.dataset.accent === dot.dataset.accent);
+      });
+    });
+  });
+
+  // Export
+  document.getElementById('settingsExportBtn').addEventListener('click', handleExport);
+  document.getElementById('settingsExportCsvBtn').addEventListener('click', handleExportCsv);
+
+  // Import
+  document.getElementById('settingsImportBtn').addEventListener('click', () => {
+    document.getElementById('settingsImportConfirm').style.display = 'inline';
+    document.getElementById('settingsImportBtn').style.display = 'none';
+  });
+  document.getElementById('settingsImportNo').addEventListener('click', () => {
+    document.getElementById('settingsImportConfirm').style.display = 'none';
+    document.getElementById('settingsImportBtn').style.display = '';
+  });
+  document.getElementById('settingsImportYes').addEventListener('click', () => {
+    document.getElementById('settingsImportInput').click();
+    document.getElementById('settingsImportConfirm').style.display = 'none';
+    document.getElementById('settingsImportBtn').style.display = '';
+  });
+  document.getElementById('settingsImportInput').addEventListener('change', handleImport);
+
+  // Tour link
+  document.getElementById('settingsTourLink').addEventListener('click', e => {
+    e.preventDefault();
+    overlay.remove();
+    startGuide();
+  });
+
+  // Profile & Targets — populate fields via DOM
+  const fl = DATA.freelancer;
+  document.getElementById('prof-name').value = fl.name || '';
+  document.getElementById('prof-role').value = fl.role || '';
+  document.getElementById('prof-target').value = fl.annualTarget || '';
+  document.getElementById('prof-ytd').value = fl.ytdIncome || '';
+  document.getElementById('prof-yearend').value = fl.yearEnd || '';
+  if (fl.currency) {
+    const sel = document.getElementById('prof-currency');
+    [...sel.options].forEach(o => { if (o.value.startsWith(fl.currency)) sel.value = o.value; });
+  }
+  if (fl.vatRegistered) {
+    document.getElementById('prof-vat').checked = true;
+    document.getElementById('prof-vatfields').style.display = 'block';
+  }
+  document.getElementById('prof-vatnum') && (document.getElementById('prof-vatnum').value = fl.vatNumber || '');
+  document.getElementById('prof-vatrate') && (document.getElementById('prof-vatrate').value = fl.vatRate || 20);
+
+  document.getElementById('prof-vat').addEventListener('change', e => {
+    document.getElementById('prof-vatfields').style.display = e.target.checked ? 'block' : 'none';
+  });
+
+  // Populate language selector
+  const profLang = document.getElementById('prof-lang');
+  if (profLang) profLang.value = getCurrentLang();
+
+  document.getElementById('prof-save').addEventListener('click', () => {
+    const name = document.getElementById('prof-name').value.trim();
+    const role = document.getElementById('prof-role').value.trim();
+    if (!name || !role) return;
+    const currencyRaw = document.getElementById('prof-currency').value;
+    const selectedLang = document.getElementById('prof-lang')?.value || 'en';
+    DATA.freelancer.name = name;
+    DATA.freelancer.role = role;
+    DATA.freelancer.currency = currencyRaw.split(' ')[0];
+    DATA.freelancer.annualTarget = parseFloat(document.getElementById('prof-target').value) || null;
+    DATA.freelancer.ytdIncome = parseFloat(document.getElementById('prof-ytd').value) || 0;
+    DATA.freelancer.yearEnd = document.getElementById('prof-yearend').value.trim() || DATA.freelancer.yearEnd;
+    DATA.freelancer.vatRegistered = document.getElementById('prof-vat').checked;
+    if (DATA.freelancer.vatRegistered) {
+      DATA.freelancer.vatNumber = document.getElementById('prof-vatnum').value.trim();
+      DATA.freelancer.vatRate = parseFloat(document.getElementById('prof-vatrate').value) || 20;
+    }
+    saveData(DATA);
+    localStorage.setItem('bizdev-lang', selectedLang);
+    renderAll();
+    const savedEl = document.getElementById('prof-saved');
+    if (savedEl) { savedEl.style.display = 'inline'; setTimeout(() => { savedEl.style.display = 'none'; }, 3000); }
+  });
+
+  // Year End
+  document.getElementById('yearEndBtn').addEventListener('click', () => {
+    document.getElementById('yearEndConfirm').style.display = 'inline';
+    document.getElementById('yearEndBtn').style.display = 'none';
+  });
+  document.getElementById('yearEndConfirmNo').addEventListener('click', () => {
+    document.getElementById('yearEndConfirm').style.display = 'none';
+    document.getElementById('yearEndBtn').style.display = '';
+  });
+  document.getElementById('yearEndConfirmYes').addEventListener('click', () => {
+    const yearTotal = DATA.income.actuals.reduce((s, v) => s + v, 0);
+    const yearLabel = DATA.freelancer.yearEnd ? `year ending ${DATA.freelancer.yearEnd}` : 'financial year';
+    // Reset income for new year
+    DATA.income.actuals = Array(12).fill(0);
+    DATA.freelancer.ytdIncome = 0;
+    // Record closed year in actions as a reminder
+    if (!DATA.actions) DATA.actions = [];
+    DATA.actions.unshift({
+      text: `Financial year closed. Total income: ${DATA.freelancer.currency || '£'}${yearTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${yearLabel})`,
+      tag: 'Year End',
+      urgency: 'normal',
+    });
+    saveData(DATA);
+    renderAll();
+    document.getElementById('yearEndConfirm').style.display = 'none';
+    const doneEl = document.getElementById('yearEndDone');
+    if (doneEl) {
+      doneEl.textContent = `Year closed. Final total: ${DATA.freelancer.currency || '£'}${yearTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}. Income reset for new year.`;
+      doneEl.style.display = 'block';
+    }
+  });
+
+  // Danger zone
+  document.getElementById('clearLiveDataBtn').addEventListener('click', () => {
+    document.getElementById('clearLiveConfirm').style.display = 'inline';
+    document.getElementById('clearLiveDataBtn').style.display = 'none';
+  });
+  document.getElementById('clearLiveConfirmNo').addEventListener('click', () => {
+    document.getElementById('clearLiveConfirm').style.display = 'none';
+    document.getElementById('clearLiveDataBtn').style.display = '';
+  });
+  document.getElementById('clearLiveConfirmYes').addEventListener('click', () => {
+    localStorage.removeItem('bizdev-data');
+    overlay.remove();
+    if (localStorage.getItem('bizdev-mode') === 'live') {
+      localStorage.setItem('bizdev-mode', 'demo');
+      location.reload();
+    }
+  });
+}
+
+    function openOllamaGuide() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:520px;">
+      <button class="modal-close" aria-label="Close" id="ollamaGuideClose">&times;</button>
+      <h3>Setting up Ollama</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">Ollama runs AI models directly on your computer — no account, no API key, no data sent anywhere. It takes about 5 minutes to set up.</p>
+
+      <div class="guide-step">
+        <div class="guide-step-num">1</div>
+        <div class="guide-step-body">
+          <strong style="font-size:13px;">Download Ollama</strong>
+          <p>Visit ollama.com and download the installer for your computer (Mac or Windows). Install it like any other app.</p>
+          <a href="https://ollama.com" target="_blank" rel="noopener" class="btn btn-primary" style="display:inline-block;text-decoration:none;font-size:12px;padding:6px 14px;">Open ollama.com &rarr;</a>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-num">2</div>
+        <div class="guide-step-body">
+          <strong style="font-size:13px;">Download a model</strong>
+          <p>Open Terminal (Mac) or Command Prompt (Windows) and run this command. It downloads a free AI model — may take a few minutes.</p>
+          <div class="code-block">
+            <span>ollama run llama3.2</span>
+            <button class="copy-btn" data-copy="ollama run llama3.2">Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-num">3</div>
+        <div class="guide-step-body">
+          <strong style="font-size:13px;">Allow browser access</strong>
+          <p>Ollama needs one extra setting to work with this dashboard. In a <em>new</em> terminal window, run:</p>
+          <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px;">Mac / Linux</p>
+          <div class="code-block">
+            <span>OLLAMA_ORIGINS="*" ollama serve</span>
+            <button class="copy-btn" data-copy='OLLAMA_ORIGINS="*" ollama serve'>Copy</button>
+          </div>
+          <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px;">Windows</p>
+          <div class="code-block">
+            <span>set OLLAMA_ORIGINS=* &amp;&amp; ollama serve</span>
+            <button class="copy-btn" data-copy="set OLLAMA_ORIGINS=* && ollama serve">Copy</button>
+          </div>
+          <p style="font-size:12px;color:var(--muted);margin-top:6px;">This tells Ollama to accept requests from this page. Keep this terminal window open while you use the dashboard.</p>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-num">4</div>
+        <div class="guide-step-body">
+          <strong style="font-size:13px;">Test it</strong>
+          <p>Close this guide, make sure Ollama is set as your active model, and click <strong>Test</strong>. You should see "&#10003; Connected".</p>
+        </div>
+      </div>
+
+      <div style="text-align:right;">
+        <button class="btn btn-primary" id="ollamaGuideDone">Got it</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const ollamaModal = overlay.querySelector('.modal');
+  const cleanupOllamaFocus = trapFocus(ollamaModal);
+  const closeOllama = () => { cleanupOllamaFocus(); overlay.remove(); };
+  document.getElementById('ollamaGuideClose').addEventListener('click', closeOllama);
+  document.getElementById('ollamaGuideDone').addEventListener('click', closeOllama);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeOllama(); });
+
+  // Copy buttons
+  overlay.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const text = btn.dataset.copy;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+      }).catch(() => {
+        btn.textContent = 'Copy failed';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      });
+    });
+  });
+}
+
+    let DATA = loadData();
+    let lastDataSnapshot = null; // for undo last AI update
+
+    let timerMinutes = 60; // default 1h, steps of 15
+
+    function fmt(n) {
+      const currency = DATA.freelancer.currency || '£';
+      return currency + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function renderHeader() {
+      const { name, role, annualTarget, ytdIncome } = DATA.freelancer;
+      const currency = DATA.freelancer.currency || '£';
+      document.title = `${name} — BizDev Dashboard`;
+      const pct = DATA.freelancer.annualTarget
+        ? Math.min(100, Math.round((ytdIncome / DATA.freelancer.annualTarget) * 100))
+        : 0;
+      const lang = getCurrentLang();
+      const today = new Date().toLocaleDateString(lang === 'en' ? 'en-GB' : lang, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const mode = getMode();
+      const isDemo = mode === 'demo';
+      const hidden = isHideFinancials();
+      const privacyLabel = hidden ? t('showAmounts') : t('hideAmounts');
+      const privacySymbol = hidden
+        ? `<span style="text-decoration:line-through;opacity:0.5;">${escapeHtml(currency)}</span>`
+        : escapeHtml(currency);
+
+      document.getElementById('header').innerHTML = `
+        <div class="header-top">
+          <div class="header-identity">
+            <h1>${escapeHtml(name)}</h1>
+            <p class="meta">${escapeHtml(role)} &mdash; ${today}</p>
+          </div>
+          <div class="header-controls">
+            ${isDemo ? langSwitcherHTML() : ''}
+            <span class="mode-pill ${mode}">${isDemo ? t('demo') : t('live')}</span>
+            <button class="btn-sm primary" id="modeToggleBtn">
+              ${isDemo ? t('switchToLive') : t('switchToDemo')}
+            </button>
+            <button class="btn-sm" id="settingsBtn">&#9881; ${t('settingsBtn')}</button>
+            <button class="btn-sm" id="privacyBtn" title="${privacyLabel}" aria-label="${privacyLabel}"
+              style="${hidden ? 'color:var(--amber)' : ''}">
+              ${privacySymbol}
+            </button>
+          </div>
+        </div>
+        ${annualTarget && !hidden ? `
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>${t('annualTargetProgress')}</span>
+            <span><strong>${fmt(ytdIncome)}</strong> ${t('of')} ${fmt(annualTarget)} &mdash; ${pct}%</span>
+          </div>
+          <div class="progress-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="${t('annualTargetProgress')}: ${pct}%">
+            <div class="progress-fill" style="transform: scaleX(${pct / 100})"></div>
+          </div>
+        </div>
+        ` : ''}
+      `;
+
+      document.getElementById('modeToggleBtn').addEventListener('click', handleModeToggle);
+      document.getElementById('settingsBtn').addEventListener('click', openSettings);
+      document.getElementById('privacyBtn').addEventListener('click', () => {
+        localStorage.setItem('bizdev-hide-financials', (!hidden).toString());
+        renderAll();
+      });
+      const ls = document.getElementById('langSwitch');
+      if (ls) ls.addEventListener('change', e => setLang(e.target.value));
+    }
+
+    function handleModeToggle() {
+      const newMode = getMode() === 'demo' ? 'live' : 'demo';
+      if (newMode === 'live' && !localStorage.getItem('bizdev-data')) {
+        startOnboarding((profile, actions) => {
+          const currency = profile.currency ? profile.currency.split(' ')[0] : '£';
+          const liveData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+          liveData.freelancer = {
+            name: profile.name,
+            role: profile.role,
+            currency,
+            yearEnd: profile.yearEnd || '05/04',
+            annualTarget: profile.annualTarget || null,
+            vatRegistered: profile.vatRegistered || false,
+            vatNumber: profile.vatNumber || '',
+            vatRate: profile.vatRate || 20,
+            dayRate: null,
+            ytdIncome: 0,
+          };
+          liveData.pipeline = { leads: [], proposals: [], active: [], invoiced: [], paid: [] };
+          liveData.income = { months: DEFAULT_DATA.income.months, actuals: Array(12).fill(0) };
+          liveData.capacity = { weekHours: 35, loggedHours: 0, byClient: [] };
+          liveData.actions = actions;
+          setMode('live');
+          DATA = liveData;
+          saveData(DATA);
+          renderAll();
+        });
+      } else {
+        setMode(newMode);
+        DATA = loadData();
+        renderAll();
+      }
+    }
+
+    let onboardingData = {};
+
+    function startOnboarding(onComplete) {
+      onboardingData = {};
+      let step = 1;
+      const actions = [];
+
+      function renderStep() {
+        let existing = document.getElementById('onboardingOverlay');
+        if (existing) existing.remove();
+
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.id = 'onboardingOverlay';
+
+        const dots = [1,2,3].map(n =>
+          `<div class="onboarding-step-dot ${n < step ? 'done' : n === step ? 'active' : ''}"></div>`
+        ).join('');
+
+        let content = '';
+        if (step === 1) {
+          content = `
+            <h3>Welcome — tell us about you</h3>
+            <div class="onboarding-steps">${dots}</div>
+            <div class="onboarding-field">
+              <label for="ob-name">Your name</label>
+              <input id="ob-name" type="text" placeholder="Alex Morgan" autocomplete="name" aria-describedby="ob-error-1">
+            </div>
+            <div class="onboarding-field">
+              <label for="ob-role">Your role / title</label>
+              <input id="ob-role" type="text" placeholder="Digital Strategy Consultant" autocomplete="organization-title" aria-describedby="ob-error-1">
+            </div>
+            <div class="onboarding-row">
+              <div class="onboarding-field">
+                <label for="ob-currency">Currency</label>
+                <select id="ob-currency">
+                  <option>£ GBP</option>
+                  <option>$ USD</option>
+                  <option>€ EUR</option>
+                  <option>$ CAD</option>
+                  <option>$ AUD</option>
+                </select>
+              </div>
+              <div class="onboarding-field">
+                <label for="ob-yearend">Financial year end</label>
+                <input id="ob-yearend" type="text" placeholder="DD/MM e.g. 05/04" inputmode="numeric" pattern="[0-9]{2}/[0-9]{2}" autocomplete="off">
+              </div>
+            </div>
+            <div id="ob-error-1" class="form-error" role="alert"></div>
+            <div class="onboarding-nav">
+              <span></span>
+              <button class="btn btn-primary" id="ob-next">Next &rarr;</button>
+            </div>
+          `;
+        } else if (step === 2) {
+          content = `
+            <h3>Financial settings</h3>
+            <div class="onboarding-steps">${dots}</div>
+            <div class="onboarding-field">
+              <label for="ob-target">Annual target (optional)</label>
+              <input id="ob-target" type="number" placeholder="Leave blank if you don't work to a target" inputmode="numeric" autocomplete="off">
+            </div>
+            <div class="onboarding-field" style="display:flex;align-items:center;gap:10px;">
+              <input type="checkbox" id="ob-vat" style="width:auto;">
+              <label for="ob-vat" style="text-transform:none;letter-spacing:0;font-size:14px;font-weight:400;cursor:pointer;">I am VAT registered</label>
+            </div>
+            <div id="ob-vatfields" style="display:none">
+              <div class="onboarding-row">
+                <div class="onboarding-field">
+                  <label for="ob-vatnum">VAT number</label>
+                  <input id="ob-vatnum" type="text" placeholder="GB123456789" autocomplete="off" spellcheck="false">
+                </div>
+                <div class="onboarding-field">
+                  <label for="ob-vatrate">VAT rate (%)</label>
+                  <input id="ob-vatrate" type="number" placeholder="20" value="20" inputmode="numeric" autocomplete="off" min="0" max="100">
+                </div>
+              </div>
+            </div>
+            <div class="onboarding-nav">
+              <button class="btn-sm" id="ob-back">&larr; Back</button>
+              <button class="btn btn-primary" id="ob-next">Next &rarr;</button>
+            </div>
+          `;
+        } else {
+          const actionRows = actions.map((a, i) => `
+            <div class="action-row" data-i="${i}">
+              <input type="text" class="ob-action-text" data-i="${i}" placeholder="e.g. Follow up with client X" aria-label="Action ${i + 1}" autocomplete="off">
+              <select class="ob-action-urgency" data-i="${i}" aria-label="Priority for action ${i + 1}">
+                <option value="urgent">Urgent</option>
+                <option value="amber" selected>Medium</option>
+                <option value="normal">Normal</option>
+              </select>
+              <button class="ob-remove-action" data-i="${i}">&times;</button>
+            </div>
+          `).join('');
+          content = `
+            <h3>Any immediate actions? <span style="font-weight:400;color:var(--muted)">(optional)</span></h3>
+            <div class="onboarding-steps">${dots}</div>
+            <div id="ob-actions">${actionRows}</div>
+            ${actions.length < 5 ? '<button class="btn-sm" id="ob-add-action">+ Add action</button>' : ''}
+            <div class="onboarding-nav">
+              <button class="btn-sm" id="ob-back">&larr; Back</button>
+              <button class="btn btn-primary" id="ob-finish">Get started &rarr;</button>
+            </div>
+          `;
+        }
+
+        overlay.innerHTML = `<div class="modal">${content}</div>`;
+        document.body.appendChild(overlay);
+        const onboardingModal = overlay.querySelector('.modal');
+        const cleanupOnboardingFocus = trapFocus(onboardingModal);
+
+        // Step 1 events
+        if (step === 1) {
+          const nameInput = document.getElementById('ob-name');
+          const roleInput = document.getElementById('ob-role');
+          // Restore previously entered values
+          if (onboardingData.name) nameInput.value = onboardingData.name;
+          if (onboardingData.role) roleInput.value = onboardingData.role;
+          if (onboardingData.currency) {
+            const currencySelect = document.getElementById('ob-currency');
+            if (currencySelect) currencySelect.value = onboardingData.currency;
+          }
+          if (onboardingData.yearEnd) {
+            const yearEndInput = document.getElementById('ob-yearend');
+            if (yearEndInput) yearEndInput.value = onboardingData.yearEnd;
+          }
+          document.getElementById('ob-next').addEventListener('click', () => {
+            const name = nameInput.value.trim();
+            const role = roleInput.value.trim();
+            if (!name || !role) {
+              const errEl = document.getElementById('ob-error-1');
+              if (errEl) { errEl.textContent = 'Please enter your name and role.'; errEl.classList.add('visible'); }
+              if (!name) { nameInput.setAttribute('aria-invalid', 'true'); nameInput.focus(); }
+              else { roleInput.setAttribute('aria-invalid', 'true'); roleInput.focus(); }
+              return;
+            }
+            nameInput.removeAttribute('aria-invalid');
+            roleInput.removeAttribute('aria-invalid');
+            onboardingData.name = name;
+            onboardingData.role = role;
+            onboardingData.currency = document.getElementById('ob-currency').value;
+            onboardingData.yearEnd = document.getElementById('ob-yearend').value;
+            step = 2; renderStep();
+          });
+        }
+
+        // Step 2 events
+        if (step === 2) {
+          document.getElementById('ob-vat').addEventListener('change', e => {
+            document.getElementById('ob-vatfields').style.display = e.target.checked ? 'block' : 'none';
+          });
+          document.getElementById('ob-back').addEventListener('click', () => { step = 1; renderStep(); });
+          document.getElementById('ob-next').addEventListener('click', () => {
+            onboardingData.annualTarget = parseFloat(document.getElementById('ob-target').value) || null;
+            onboardingData.vatRegistered = document.getElementById('ob-vat').checked;
+            onboardingData.vatNumber = document.getElementById('ob-vatnum')?.value.trim() || '';
+            onboardingData.vatRate = parseFloat(document.getElementById('ob-vatrate')?.value) || 20;
+            step = 3; renderStep();
+          });
+        }
+
+        // Step 3 events
+        if (step === 3) {
+          // Restore action text values (they get reset on re-render)
+          document.querySelectorAll('.ob-action-text').forEach(inp => {
+            inp.value = actions[parseInt(inp.dataset.i)]?.text || '';
+          });
+          document.querySelectorAll('.ob-action-urgency').forEach(sel => {
+            sel.value = actions[parseInt(sel.dataset.i)]?.urgency || 'normal';
+          });
+
+          document.getElementById('ob-back')?.addEventListener('click', () => { step = 2; renderStep(); });
+          document.getElementById('ob-add-action')?.addEventListener('click', () => {
+            // Capture current values before re-render
+            document.querySelectorAll('.ob-action-text').forEach(inp => {
+              const i = parseInt(inp.dataset.i);
+              if (!actions[i]) actions[i] = { text: '', tag: '', urgency: 'amber' };
+              actions[i].text = inp.value.trim();
+            });
+            document.querySelectorAll('.ob-action-urgency').forEach(sel => {
+              const i = parseInt(sel.dataset.i);
+              if (actions[i]) actions[i].urgency = sel.value;
+            });
+            actions.push({ text: '', tag: '', urgency: 'amber' });
+            renderStep();
+          });
+          document.querySelectorAll('.ob-remove-action').forEach(btn => {
+            btn.addEventListener('click', () => {
+              // Capture current values before removing
+              document.querySelectorAll('.ob-action-text').forEach(inp => {
+                const i = parseInt(inp.dataset.i);
+                if (!actions[i]) actions[i] = { text: '', tag: '', urgency: 'amber' };
+                actions[i].text = inp.value.trim();
+              });
+              document.querySelectorAll('.ob-action-urgency').forEach(sel => {
+                const i = parseInt(sel.dataset.i);
+                if (actions[i]) actions[i].urgency = sel.value;
+              });
+              actions.splice(parseInt(btn.dataset.i), 1);
+              renderStep();
+            });
+          });
+          document.getElementById('ob-finish').addEventListener('click', () => {
+            // Collect final action text/urgency from inputs
+            document.querySelectorAll('.ob-action-text').forEach(inp => {
+              const i = parseInt(inp.dataset.i);
+              if (!actions[i]) actions[i] = { text: '', tag: '', urgency: 'amber' };
+              actions[i].text = inp.value.trim();
+            });
+            document.querySelectorAll('.ob-action-urgency').forEach(sel => {
+              const i = parseInt(sel.dataset.i);
+              if (actions[i]) actions[i].urgency = sel.value;
+            });
+            overlay.remove();
+            onComplete(onboardingData, actions.filter(a => a.text));
+          });
+        }
+      }
+
+      renderStep();
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function handleExport() {
+      const liveRaw = localStorage.getItem('bizdev-data');
+      let exportData;
+      try { exportData = liveRaw ? JSON.parse(liveRaw) : null; } catch { exportData = null; }
+      if (!exportData) return; // button only visible in live mode anyway
+      const filename = `bizdev-export-${new Date().toISOString().slice(0, 10)}.json`;
+      downloadBlob(new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' }), filename);
+    }
+
+    function handleExportCsv() {
+      const src = getMode() === 'live' ? localStorage.getItem('bizdev-data') : null;
+      let d;
+      try { d = src ? JSON.parse(src) : DATA; } catch { d = DATA; }
+      const currency = d.freelancer?.currency || '£';
+      const cols = ['leads', 'proposals', 'active', 'invoiced', 'paid'];
+      const colLabels = { leads: 'Lead', proposals: 'Proposal', active: 'Active', invoiced: 'Invoiced', paid: 'Paid' };
+      const rows = [['Stage', 'Client', 'Project', `Value (${currency})`, 'Day Rate', 'Notes']];
+      cols.forEach(col => {
+        (d.pipeline?.[col] || []).forEach(card => {
+          rows.push([
+            colLabels[col],
+            card.client || '',
+            card.project || '',
+            card.value != null ? card.value : '',
+            card.dayRate || '',
+            (card.notes || '').replace(/"/g, '""'),
+          ]);
+        });
+      });
+      const csv = rows.map(r => r.map(cell => `"${cell}"`).join(',')).join('\r\n');
+      const filename = `bizdev-pipeline-${new Date().toISOString().slice(0, 10)}.csv`;
+      downloadBlob(new Blob([csv], { type: 'text/csv' }), filename);
+    }
+
+    function handleImport(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          const requiredKeys = ['freelancer', 'pipeline', 'income', 'capacity', 'actions'];
+          if (!requiredKeys.every(k => k in parsed)) throw new Error('schema');
+          if (!Array.isArray(parsed.actions) || !Array.isArray(parsed.pipeline?.leads)) throw new Error('schema');
+
+          // Always save to live slot regardless of current mode
+          try {
+            localStorage.setItem('bizdev-data', JSON.stringify(parsed));
+          } catch (storageErr) {
+            throw new Error('storage');
+          }
+
+          // If currently in live mode, reload DATA and re-render
+          if (getMode() === 'live') {
+            DATA = parsed;
+            localStorage.setItem('bizdev-last-update', 'Live data imported successfully');
+            renderAll();
+            // Clear the import message after 5 seconds so it doesn't persist on future page loads
+            setTimeout(() => {
+              if (localStorage.getItem('bizdev-last-update') === 'Live data imported successfully') {
+                localStorage.removeItem('bizdev-last-update');
+              }
+            }, 5000);
+          } else {
+            // In demo mode — confirm it was saved to live slot
+            const statusEl = document.getElementById('settingsImportStatus');
+            if (statusEl) { statusEl.style.color = 'var(--teal)'; statusEl.style.display = ''; statusEl.textContent = 'Imported. Switch to Live mode to use it.'; }
+          }
+        } catch (err) {
+          const msg = err.message === 'storage'
+            ? "Couldn't save — your browser storage may be full."
+            : "That file doesn't look right. Make sure it's a BizDev Dashboard export.";
+          const statusEl = document.getElementById('settingsImportStatus');
+          if (statusEl) { statusEl.style.color = 'var(--danger)'; statusEl.style.display = ''; statusEl.textContent = msg; }
+        }
+        e.target.value = '';
+      };
+      reader.onerror = () => {
+        const statusEl = document.getElementById('settingsImportStatus');
+        if (statusEl) { statusEl.style.color = 'var(--danger)'; statusEl.style.display = ''; statusEl.textContent = 'Could not read the file.'; }
+        e.target.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderPipeline() {
+      const cols = [
+        { key: 'leads',    label: t('leads') },
+        { key: 'proposals', label: t('proposals') },
+        { key: 'active',   label: t('active') },
+        { key: 'invoiced', label: t('invoiced') },
+        { key: 'paid',     label: t('paid') },
+      ];
+
+      const hideFinancials = isHideFinancials();
+
+      const colHTML = cols.map(({ key, label }) => {
+        const items = DATA.pipeline[key] || [];
+        const total = items.reduce((s, i) => s + (i.value || 0), 0);
+        const cards = items.map((item, idx) => `
+          <div class="pipeline-card" draggable="true"
+            tabindex="0" role="button"
+            aria-label="${escapeHtml(item.client || 'Card')} — ${escapeHtml(item.project || '')} (${label})"
+            data-col="${key}" data-idx="${idx}">
+            <div class="pipeline-card-name">${escapeHtml(item.client || '')}</div>
+            <div class="pipeline-card-type">${escapeHtml(item.project || '')}</div>
+            ${!hideFinancials ? `<div class="pipeline-card-amount">${fmt(item.value || 0)}</div>` : ''}
+            ${item.notes ? `<div class="pipeline-card-type" style="margin-top:4px;font-style:italic;">${escapeHtml(item.notes.slice(0,60))}${item.notes.length>60?'…':''}</div>` : ''}
+          </div>
+        `).join('');
+
+        return `
+          <div class="pipeline-col" data-col="${key}">
+            <div class="pipeline-col-header">
+              <span class="pipeline-col-title">${label} (${items.length})</span>
+              ${!hideFinancials ? `<span class="pipeline-col-value">${fmt(total)}</span>` : ''}
+            </div>
+            ${cards}
+            <button class="pipeline-add-btn" data-col="${key}">${t('addCard')}</button>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('pipeline').innerHTML = `
+        <h2>${t('pipeline')}</h2>
+        <div class="pipeline-cols">${colHTML}</div>
+      `;
+
+      // Drag events
+      document.querySelectorAll('.pipeline-card').forEach(card => {
+        card.addEventListener('dragstart', e => {
+          card._isDragging = true;
+          card.classList.add('dragging');
+          e.dataTransfer.setData('col', card.dataset.col);
+          e.dataTransfer.setData('idx', card.dataset.idx);
+        });
+        card.addEventListener('dragend', () => {
+          card.classList.remove('dragging');
+          setTimeout(() => { card._isDragging = false; }, 0);
+        });
+        card.addEventListener('click', () => {
+          if (card._isDragging) return;
+          openPipelineEdit(card.dataset.col, parseInt(card.dataset.idx));
+        });
+        card.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openPipelineEdit(card.dataset.col, parseInt(card.dataset.idx));
+          }
+        });
+      });
+
+      document.querySelectorAll('.pipeline-col').forEach(col => {
+        col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over'); });
+        col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+        col.addEventListener('drop', e => {
+          e.preventDefault();
+          col.classList.remove('drag-over');
+          const fromCol = e.dataTransfer.getData('col');
+          const fromIdx = parseInt(e.dataTransfer.getData('idx'));
+          const toCol = col.dataset.col;
+          if (fromCol === toCol) return;
+          const item = DATA.pipeline[fromCol].splice(fromIdx, 1)[0];
+          if (!item) return;
+          DATA.pipeline[toCol].push(item);
+          saveData(DATA);
+          renderPipeline();
+        });
+      });
+
+      // Add buttons
+      document.querySelectorAll('.pipeline-add-btn').forEach(btn => {
+        btn.addEventListener('click', () => openPipelineEdit(btn.dataset.col, -1));
+      });
+    }
+
+    function openPipelineEdit(colKey, idx) {
+      const isNew = idx === -1;
+      const item = isNew
+        ? { client: '', project: '', value: 0, dayRate: '', notes: '' }
+        : { ...DATA.pipeline[colKey][idx] };
+
+      const colLabels = { leads: 'Lead', proposals: 'Proposal', active: 'Active Project', invoiced: 'Invoiced', paid: 'Paid' };
+      const currency = DATA.freelancer.currency || '£';
+
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.innerHTML = `
+        <div class="modal pipeline-form">
+          <button class="modal-close" aria-label="Close" id="pipelineClose">&times;</button>
+          <h3>${isNew ? 'Add ' + colLabels[colKey] : 'Edit ' + colLabels[colKey]}</h3>
+          <div class="onboarding-field"><label for="pf-client">Client name</label>
+            <input id="pf-client" type="text" aria-describedby="pf-client-error">
+            <div id="pf-client-error" class="form-error" role="alert"></div>
+          </div>
+          <div class="onboarding-field"><label for="pf-project">Project</label>
+            <input id="pf-project" type="text"></div>
+          <div class="onboarding-row">
+            <div class="onboarding-field"><label for="pf-value">Value (${escapeHtml(currency)})</label>
+              <input id="pf-value" type="number" min="0" inputmode="numeric" autocomplete="off"></div>
+            <div class="onboarding-field"><label for="pf-dayrate">Day rate (optional)</label>
+              <input id="pf-dayrate" type="number" min="0" inputmode="numeric" autocomplete="off"></div>
+          </div>
+          <div class="onboarding-field"><label for="pf-notes">Notes</label>
+            <textarea id="pf-notes"></textarea></div>
+          <div class="pipeline-modal-footer">
+            ${!isNew ? `
+              <div style="display:flex;align-items:center;gap:8px;">
+                <button class="btn-danger" id="pf-delete">Delete</button>
+                <span id="pf-delete-confirm" role="alert" style="display:none;font-size:12px;">
+                  Sure?
+                  <button class="btn-danger" id="pf-delete-yes" style="margin-left:4px;font-size:11px;padding:3px 8px;">Yes, delete</button>
+                  <button class="btn-sm" id="pf-delete-no" style="margin-left:2px;">No</button>
+                </span>
+              </div>` : '<span></span>'}
+            <div style="display:flex;gap:8px;">
+              <button class="btn-sm" id="pf-cancel">Cancel</button>
+              <button class="btn btn-primary" id="pf-save">Save</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      // Set values safely via DOM (avoids XSS in attribute interpolation)
+      document.getElementById('pf-client').value = item.client || '';
+      document.getElementById('pf-project').value = item.project || '';
+      document.getElementById('pf-value').value = item.value || '';
+      document.getElementById('pf-dayrate').value = item.dayRate || '';
+      document.getElementById('pf-notes').value = item.notes || '';
+
+      const pipelineModal = overlay.querySelector('.modal');
+      const cleanupPipelineFocus = trapFocus(pipelineModal);
+      const close = () => { cleanupPipelineFocus(); overlay.remove(); };
+      document.getElementById('pipelineClose').addEventListener('click', close);
+      document.getElementById('pf-cancel').addEventListener('click', close);
+      overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+      if (!isNew) {
+        document.getElementById('pf-delete').addEventListener('click', () => {
+          document.getElementById('pf-delete-confirm').style.display = 'inline';
+          document.getElementById('pf-delete').style.display = 'none';
+        });
+        document.getElementById('pf-delete-no').addEventListener('click', () => {
+          document.getElementById('pf-delete-confirm').style.display = 'none';
+          document.getElementById('pf-delete').style.display = '';
+        });
+        document.getElementById('pf-delete-yes').addEventListener('click', () => {
+          DATA.pipeline[colKey].splice(idx, 1);
+          saveData(DATA);
+          renderPipeline();
+          close();
+        });
+      }
+
+      document.getElementById('pf-save').addEventListener('click', () => {
+        const clientInput = document.getElementById('pf-client');
+        const client = clientInput.value.trim();
+        if (!client) {
+          const errEl = document.getElementById('pf-client-error');
+          if (errEl) { errEl.textContent = 'Client name is required.'; errEl.classList.add('visible'); }
+          clientInput.setAttribute('aria-invalid', 'true');
+          clientInput.focus();
+          return;
+        }
+        clientInput.removeAttribute('aria-invalid');
+        const updated = {
+          client,
+          project: document.getElementById('pf-project').value.trim(),
+          value: parseFloat(document.getElementById('pf-value').value) || 0,
+          dayRate: parseFloat(document.getElementById('pf-dayrate').value) || '',
+          notes: document.getElementById('pf-notes').value.trim(),
+        };
+        if (isNew) {
+          DATA.pipeline[colKey].push(updated);
+        } else {
+          DATA.pipeline[colKey][idx] = { ...DATA.pipeline[colKey][idx], ...updated };
+        }
+        saveData(DATA);
+        renderPipeline();
+        close();
+      });
+    }
+
+    function renderIncome() {
+      if (isHideFinancials()) {
+        document.getElementById('income').style.display = 'none';
+        return;
+      }
+      document.getElementById('income').style.display = '';
+      const { months, actuals } = DATA.income;
+      const ytd = DATA.freelancer.ytdIncome;
+      const filled = actuals.filter(v => v > 0);
+      const best = filled.length ? Math.max(...filled) : 0;
+      const avg = filled.length ? Math.round(filled.reduce((s, v) => s + v, 0) / filled.length) : 0;
+      const remainingMonths = 12 - filled.length;
+      const projected = ytd + Math.round(avg * remainingMonths);
+
+      const monthInputs = months.map((m, i) => `
+        <div class="income-month-input">
+          <label for="income-month-${i}">${m}</label>
+          <input id="income-month-${i}" type="number" class="income-actual-input" data-idx="${i}" value="${actuals[i] || ''}" placeholder="0" min="0" inputmode="decimal" autocomplete="off">
+        </div>
+      `).join('');
+
+      document.getElementById('income').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h2 style="margin-bottom:0;">${t('income')}</h2>
+          <button class="btn-sm" id="incomeEditToggle" aria-expanded="${incomeEditOpen ? 'true' : 'false'}" aria-controls="incomeMonthGrid">${incomeEditOpen ? t('doneEditing') : t('editIncome')}</button>
+        </div>
+        <canvas id="incomeChart" height="140" role="img" aria-label="${t('income')} — ${t('monthlyAverage')}: ${fmt(avg)}"></canvas>
+        <div class="income-stats">
+          <div class="stat">
+            <div class="stat-label">${t('ytdTotal')}</div>
+            <div class="stat-value teal">${fmt(ytd)}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">${t('bestMonth')}</div>
+            <div class="stat-value">${fmt(best)}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">${t('monthlyAverage')}</div>
+            <div class="stat-value">${fmt(avg)}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">${t('projectedYearEnd')}</div>
+            <div class="stat-value">${fmt(projected)}</div>
+          </div>
+        </div>
+        <div id="incomeEditForm" style="display:${incomeEditOpen ? 'block' : 'none'};margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+          <div class="income-month-grid" id="incomeMonthGrid">${monthInputs}</div>
+        </div>
+      `;
+
+      const canvas = document.getElementById('incomeChart');
+      if (typeof Chart === 'undefined') {
+        canvas.insertAdjacentHTML('afterend', `<p style="color:var(--muted);font-size:13px;margin-top:8px;">${t('chartUnavailable')}</p>`);
+        return;
+      }
+
+      if (incomeChart) { incomeChart.destroy(); incomeChart = null; }
+      incomeChart = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: months,
+          datasets: [{
+            data: actuals,
+            backgroundColor: (() => { const style = getComputedStyle(document.documentElement); const teal = style.getPropertyValue('--teal').trim(); const border = style.getPropertyValue('--border').trim(); return actuals.map(v => v > 0 ? teal : border); })(),
+            borderRadius: 4,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() } },
+            y: {
+              grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--border').trim() },
+              ticks: {
+                font: { size: 11 },
+                color: getComputedStyle(document.documentElement).getPropertyValue('--muted').trim(),
+                callback: v => (DATA.freelancer.currency || '£') + (v / 1000) + 'k'
+              }
+            }
+          }
+        }
+      });
+
+      // Income edit toggle
+      document.getElementById('incomeEditToggle').addEventListener('click', () => {
+        incomeEditOpen = !incomeEditOpen;
+        renderIncome();
+      });
+
+      // Income month inputs — update on change
+      document.getElementById('income').querySelectorAll('.income-actual-input').forEach(input => {
+        input.addEventListener('change', () => {
+          const i = parseInt(input.dataset.idx, 10);
+          DATA.income.actuals[i] = parseFloat(input.value) || 0;
+          DATA.freelancer.ytdIncome = DATA.income.actuals.reduce((s, v) => s + v, 0);
+          saveData(DATA);
+          renderIncome();
+        });
+      });
+    }
+
+
+    function renderCapacity() {
+      const { weekHours, loggedHours, byClient } = DATA.capacity;
+      const overbooked = loggedHours > weekHours;
+
+      const bars = byClient.map(({ client, hours }) => {
+        const clientPct = Math.round((hours / weekHours) * 100);
+        return `
+          <div class="client-bar-row">
+            <div class="client-bar-label">
+              <span>${escapeHtml(client)}</span>
+              <span>${hours}h</span>
+            </div>
+            <div class="client-bar-track">
+              <div class="client-bar-fill" style="width: ${clientPct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const clients = (DATA.pipeline.active || []).map(c => c.client).filter(Boolean);
+      const savedClient = localStorage.getItem('bizdev-timer-client') || '';
+      const clientOptions = clients.length
+        ? clients.map(c => `<option value="${escapeHtml(c)}" ${c === savedClient ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')
+        : `<option value="">${t('noActiveProjects')}</option>`;
+
+      document.getElementById('capacity').innerHTML = `
+        <h2>${t('timeCapacity')}</h2>
+        <div class="capacity-summary">
+          <span class="capacity-hours">${loggedHours}h</span>
+          <span class="capacity-of">${t('of')}
+            <span id="weekHoursDisplay" title="${t('weekHoursLabel')}" style="cursor:pointer;border-bottom:1px dashed var(--muted);" tabindex="0" role="button" aria-label="${t('weekHoursLabel')}: ${weekHours}">${weekHours}h</span>
+            ${t('available')}
+          </span>
+          ${overbooked ? `<span class="capacity-warning">${t('overbooked')}</span>` : ''}
+        </div>
+        ${bars}
+        <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:10px;">
+          <button class="btn-sm" id="logTimeToggle" aria-expanded="false" aria-controls="logTimeBody" style="width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;">
+            <span>${t('logTime')}</span><span id="logTimeChevron" style="font-size:10px;color:var(--muted);">&#9654;</span>
+          </button>
+          <div id="logTimeBody" style="display:none;margin-top:10px;">
+            <select class="timer-client-select" id="timerClient" aria-label="Select project to log time against">${clientOptions}</select>
+            <div class="timer-duration">
+              <button class="timer-step-btn" id="timerMinus" aria-label="Decrease time by 15 minutes">&#8722;</button>
+              <span class="timer-duration-val" id="timerDurationVal" aria-live="polite" aria-atomic="true">${fmtDuration(timerMinutes)}</span>
+              <button class="timer-step-btn" id="timerPlus" aria-label="Increase time by 15 minutes">&#43;</button>
+            </div>
+            <button class="btn btn-primary" style="width:100%;" id="timerLogBtn" ${!clients.length ? 'disabled' : ''}>${t('logTimeBtn')}</button>
+          </div>
+        </div>
+      `;
+
+      // Week hours — click to edit inline
+      const weekHoursEl = document.getElementById('weekHoursDisplay');
+      function activateWeekHoursEdit() {
+        const currentVal = DATA.capacity.weekHours;
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.min = '1'; input.max = '168';
+        input.value = currentVal;
+        input.setAttribute('inputmode', 'numeric');
+        input.setAttribute('autocomplete', 'off');
+        input.setAttribute('aria-label', t('weekHoursLabel'));
+        input.style.cssText = 'width:3.5em;padding:1px 4px;background:var(--bg);border:1px solid var(--teal);border-radius:4px;color:var(--text);font-size:inherit;font-weight:inherit;';
+        weekHoursEl.replaceWith(input);
+        input.focus(); input.select();
+        function commit() {
+          const val = parseInt(input.value) || currentVal;
+          DATA.capacity.weekHours = Math.max(1, Math.min(168, val));
+          saveData(DATA);
+          renderCapacity();
+        }
+        input.addEventListener('blur', commit);
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter') { e.preventDefault(); commit(); }
+          if (e.key === 'Escape') { renderCapacity(); }
+        });
+      }
+      weekHoursEl.addEventListener('click', activateWeekHoursEdit);
+      weekHoursEl.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activateWeekHoursEdit(); }
+      });
+
+      document.getElementById('logTimeToggle').addEventListener('click', () => {
+        const body = document.getElementById('logTimeBody');
+        const chevron = document.getElementById('logTimeChevron');
+        const toggle = document.getElementById('logTimeToggle');
+        const open = body.style.display === 'none';
+        body.style.display = open ? 'block' : 'none';
+        chevron.style.transform = open ? 'rotate(90deg)' : '';
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+
+      document.getElementById('timerClient').addEventListener('change', e => {
+        localStorage.setItem('bizdev-timer-client', e.target.value);
+      });
+
+      document.getElementById('timerMinus').addEventListener('click', () => {
+        if (timerMinutes > 15) {
+          timerMinutes -= 15;
+          document.getElementById('timerDurationVal').textContent = fmtDuration(timerMinutes);
+        }
+      });
+
+      document.getElementById('timerPlus').addEventListener('click', () => {
+        timerMinutes += 15;
+        document.getElementById('timerDurationVal').textContent = fmtDuration(timerMinutes);
+      });
+
+      document.getElementById('timerLogBtn').addEventListener('click', () => {
+        const client = document.getElementById('timerClient')?.value || '';
+        if (!client) return;
+        const hoursToAdd = timerMinutes / 60;
+        DATA.capacity.loggedHours = Math.round((DATA.capacity.loggedHours + hoursToAdd) * 10) / 10;
+        const existing = DATA.capacity.byClient.find(c => c.client === client);
+        if (existing) {
+          existing.hours = Math.round((existing.hours + hoursToAdd) * 10) / 10;
+        } else {
+          DATA.capacity.byClient.push({ client, hours: Math.round(hoursToAdd * 10) / 10 });
+        }
+        saveData(DATA);
+        timerMinutes = 60;
+        renderCapacity();
+        // Keep the log time section expanded after logging
+        document.getElementById('logTimeBody').style.display = 'block';
+        document.getElementById('logTimeChevron').style.transform = 'rotate(90deg)';
+        document.getElementById('logTimeToggle')?.setAttribute('aria-expanded', 'true');
+      });
+    }
+
+    function fmtDuration(mins) {
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      return h > 0 ? (m > 0 ? `${h}h ${m}m` : `${h}h`) : `${m}m`;
+    }
+
+    function renderActions() {
+      const items = DATA.actions.map(({ text, tag, urgency }, i) => {
+        const dotClass = urgency === 'urgent' ? 'urgent' : urgency === 'amber' ? 'amber' : '';
+        const tagClass = urgency === 'urgent' ? 'red' : urgency === 'amber' ? 'amber' : '';
+        const urgencyLabel = urgency === 'urgent' ? t('urgentLabel') : urgency === 'amber' ? t('mediumLabel') : t('normalLabel');
+        return `
+          <div class="action-item">
+            <div class="action-dot ${dotClass}" aria-hidden="true"></div>
+            <div class="action-text">
+              <span class="sr-only">${urgencyLabel}: </span>
+              ${escapeHtml(text)}
+              ${tag ? `<br><span class="action-tag ${tagClass}">${escapeHtml(tag)}</span>` : ''}
+            </div>
+            <button class="action-delete" data-index="${i}" aria-label="Delete action">&times;</button>
+          </div>
+        `;
+      }).join('');
+
+      const emptyActions = DATA.actions.length === 0
+        ? `<p style="font-size:13px;color:var(--muted);line-height:1.5;">${t('noActionsEmpty')}</p>`
+        : '';
+
+      document.getElementById('actions').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h2 style="margin-bottom:0;">${t('nextActions')}</h2>
+          <button class="btn-sm" id="addActionToggle" aria-expanded="false" aria-controls="addActionForm">+ ${t('addAction')}</button>
+        </div>
+        ${items}
+        ${emptyActions}
+        <div id="addActionForm" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+          <input type="text" id="newActionText" placeholder="${t('actionPlaceholder')}" aria-label="${t('addAction')}" autocomplete="off" style="width:100%;margin-bottom:8px;padding:6px 8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;">
+          <div style="display:flex;gap:8px;">
+            <select id="newActionUrgency" aria-label="${t('urgencyLabel')}" style="flex:1;padding:6px 8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;">
+              <option value="normal">${t('normalLabel')}</option>
+              <option value="amber">${t('mediumLabel')}</option>
+              <option value="urgent">${t('urgentLabel')}</option>
+            </select>
+            <button class="btn btn-primary" id="addActionSave" style="padding:6px 14px;">${t('addActionBtn')}</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('actions').querySelectorAll('.action-delete').forEach(btn => {
+        btn.addEventListener('click', () => {
+          DATA.actions.splice(parseInt(btn.dataset.index, 10), 1);
+          saveData(DATA);
+          renderActions();
+        });
+      });
+
+      document.getElementById('addActionToggle').addEventListener('click', () => {
+        const form = document.getElementById('addActionForm');
+        const toggle = document.getElementById('addActionToggle');
+        const visible = form.style.display !== 'none';
+        form.style.display = visible ? 'none' : 'block';
+        toggle.setAttribute('aria-expanded', visible ? 'false' : 'true');
+        if (!visible) document.getElementById('newActionText').focus();
+      });
+
+      function saveNewAction() {
+        const text = document.getElementById('newActionText').value.trim();
+        if (!text) return;
+        DATA.actions.push({ text, tag: '', urgency: document.getElementById('newActionUrgency').value });
+        saveData(DATA);
+        renderActions();
+      }
+
+      document.getElementById('addActionSave').addEventListener('click', saveNewAction);
+      document.getElementById('newActionText').addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); saveNewAction(); }
+      });
+    }
+
+    function renderChat() {
+      const model = getActiveModel();
+      const provider = PROVIDERS[model] || PROVIDERS['claude'];
+      const hasKey = !!getProviderKey(model);
+      const lastUpdate = localStorage.getItem('bizdev-last-update') || '';
+      const isDemo = getMode() === 'demo';
+
+      document.getElementById('chat').innerHTML = `
+        <div class="chat-panel-header">
+          <h2>${t('askProvider')} ${provider.name}</h2>
+        </div>
+        ${!hasKey ? `
+          <div class="chat-setup">
+            <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">${t('noApiKey')} ${provider.name}. <a href="#" id="openSettingsFromChat" style="color:var(--teal);">${t('openSettingsLink')}</a> to add one — the rest of the dashboard works without it.</p>
+          </div>
+        ` : `
+          <p class="chat-last-update" id="lastUpdate" aria-live="polite" aria-atomic="true"></p>
+          <div class="chat-input-row">
+            <textarea id="chatInput" rows="2" placeholder="${t('chatPlaceholder')}" aria-label="${t('chatInputLabel')}"></textarea>
+            <button class="btn btn-primary" id="sendBtn">${t('updateBtn')}</button>
+          </div>
+          <div class="chat-footer">
+            <span>${t('poweredBy')} ${provider.name}</span>
+            ${lastDataSnapshot ? `<button id="undoBtn" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;text-decoration:underline;">${t('undoUpdate')}</button>` : ''}
+          </div>
+        `}
+      `;
+
+      if (!hasKey) {
+        document.getElementById('openSettingsFromChat').addEventListener('click', e => { e.preventDefault(); openSettings(); });
+      } else {
+        document.getElementById('sendBtn').addEventListener('click', handleChatUpdate);
+        document.getElementById('chatInput').addEventListener('keydown', e => {
+          if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatUpdate(); }
+        });
+        document.getElementById('undoBtn')?.addEventListener('click', () => {
+          if (!lastDataSnapshot) return;
+          DATA = lastDataSnapshot;
+          lastDataSnapshot = null;
+          localStorage.removeItem('bizdev-last-update');
+          saveData(DATA);
+          renderAll();
+        });
+      }
+
+      const luEl = document.getElementById('lastUpdate');
+      if (luEl) {
+        if (!isDemo && lastUpdate) {
+          luEl.textContent = t('lastUpdate') + lastUpdate;
+        } else {
+          luEl.textContent = t('describeChanges');
+        }
+      }
+    }
+
+    async function handleChatUpdate() {
+      const input = document.getElementById('chatInput');
+      const sendBtn = document.getElementById('sendBtn');
+      const lastUpdateEl = document.getElementById('lastUpdate');
+      const userMessage = input.value.trim();
+
+      if (!userMessage) return;
+
+      lastDataSnapshot = JSON.parse(JSON.stringify(DATA)); // save for undo
+      input.disabled = true;
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = `<span class="spinner"></span>${t('updating')}`;
+      lastUpdateEl.className = 'chat-last-update';
+      lastUpdateEl.textContent = t('thinking');
+
+      const systemPrompt = `You are a data assistant for a freelancer business dashboard. The user describes changes — they may write in any language. You receive their current data as JSON and return the updated JSON — nothing else. No markdown, no code fences, no explanation. Return only the raw JSON object with the same top-level structure. CRITICAL: always return valid JSON regardless of the language the user writes in.
+
+SCHEMA:
+- freelancer: { name, role, currency, annualTarget, ytdIncome, vatRegistered, vatRate }
+- pipeline: { leads, proposals, active, invoiced, paid } — each is an array of { client, project, value, dayRate, notes }
+- income: { months: [string labels], actuals: [number, one per month] }
+- capacity: { weekHours, loggedHours, byClient: [{client, hours}] }
+- actions: [{ text, tag, urgency }] — urgency is "urgent", "amber", or "normal"
+
+RULES:
+1. Moving a pipeline card (e.g. "Shelter is now active") means: find the card by client name in its current column, remove it from there, add it to the target column. Never duplicate a card.
+2. Updating a card (e.g. "agreed £3,500 with Shelter") means: find it by client name and update its fields in place.
+3. Logging hours (e.g. "did 3 hours on Shelter") means: add to capacity.loggedHours and find or create the matching entry in capacity.byClient.
+4. Match client names case-insensitively. Never create a duplicate entry for the same client.
+5. If an update is ambiguous, make the most reasonable interpretation.
+6. Never remove data that wasn't mentioned. Only change what the user described.
+7. Keep all fields that aren't mentioned exactly as they were.
+8. String values (names, notes, action text) may be in any language — preserve them as written by the user.`;
+
+      const model = getActiveModel();
+      if (!PROVIDERS[model]) return;
+      const apiKey = getProviderKey(model);
+
+      if (!apiKey && model !== 'ollama') {
+        lastUpdateEl.className = 'chat-last-update error';
+        lastUpdateEl.textContent = t('noApiKey') + ' ' + (PROVIDERS[model]?.name || model) + '.';
+        input.disabled = false;
+        sendBtn.disabled = false;
+        sendBtn.textContent = t('updateBtn');
+        return;
+      }
+
+      let fetchUrl, fetchHeaders, fetchBody, parseResponse;
+
+      if (model === 'claude') {
+        fetchUrl = 'https://api.anthropic.com/v1/messages';
+        fetchHeaders = {
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+          'anthropic-dangerous-allow-browser': 'true',
+        };
+        fetchBody = JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 2048,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: `Current data:\n${JSON.stringify(DATA, null, 2)}\n\nUpdate: ${userMessage}` }],
+        });
+        parseResponse = r => r.content?.[0]?.text?.trim();
+      } else if (model === 'gemini') {
+        fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+        fetchHeaders = { 'content-type': 'application/json' };
+        fetchBody = JSON.stringify({
+          contents: [{ parts: [{ text: systemPrompt + '\n\nCurrent data:\n' + JSON.stringify(DATA, null, 2) + '\n\nUpdate: ' + userMessage }] }],
+        });
+        parseResponse = r => r.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      } else {
+        if (model === 'ollama') {
+          const ollamaBase = (localStorage.getItem('bizdev-ollama-url') || 'http://localhost:11434/v1').replace(/\/$/, '');
+          const ollamaModel = localStorage.getItem('bizdev-ollama-model') || 'llama3.2';
+          fetchUrl = ollamaBase + '/chat/completions';
+          fetchHeaders = { 'content-type': 'application/json' };
+          fetchBody = JSON.stringify({
+            model: ollamaModel,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: `Current data:\n${JSON.stringify(DATA, null, 2)}\n\nUpdate: ${userMessage}` },
+            ],
+          });
+          parseResponse = r => r.choices?.[0]?.message?.content?.trim();
+        } else {
+          const urls = { chatgpt: 'https://api.openai.com/v1/chat/completions', mistral: 'https://api.mistral.ai/v1/chat/completions' };
+          const models = { chatgpt: 'gpt-4o-mini', mistral: 'mistral-small-latest' };
+          fetchUrl = urls[model];
+          fetchHeaders = { 'Authorization': `Bearer ${apiKey}`, 'content-type': 'application/json' };
+          fetchBody = JSON.stringify({
+            model: models[model],
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: `Current data:\n${JSON.stringify(DATA, null, 2)}\n\nUpdate: ${userMessage}` },
+            ],
+          });
+          parseResponse = r => r.choices?.[0]?.message?.content?.trim();
+        }
+      }
+
+      try {
+        const response = await fetch(fetchUrl, { method: 'POST', headers: fetchHeaders, body: fetchBody });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.error?.message || `API error ${response.status}`);
+        }
+
+        const result = await response.json();
+        const raw = parseResponse(result);
+        if (!raw) throw new Error('Empty response from API — try again.');
+        const clean = raw.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim();
+        const newData = JSON.parse(clean);
+
+        const requiredKeys = ['freelancer', 'pipeline', 'income', 'capacity', 'actions'];
+        if (!requiredKeys.every(k => k in newData)) throw new Error('Unexpected response shape');
+        if (!Array.isArray(newData.actions) || !Array.isArray(newData.pipeline?.leads))
+          throw new Error('Unexpected response shape');
+
+        DATA = newData;
+        const summary = userMessage.length > 60 ? userMessage.slice(0, 57) + '\u2026' : userMessage;
+        localStorage.setItem('bizdev-last-update', summary);
+        input.value = '';
+        renderAll();
+        saveData(DATA);
+
+      } catch (err) {
+        lastUpdateEl.className = 'chat-last-update error';
+        lastUpdateEl.textContent = err.message.includes('JSON')
+          ? t('parseError')
+          : err.message || t('genericError');
+
+        input.disabled = false;
+        sendBtn.disabled = false;
+        sendBtn.textContent = t('updateBtn');
+        input.focus();
+      }
+    }
+
+    const PANEL_IDS = ['income', 'capacity', 'actions', 'chat'];
+
+    function applyPanelOrder() {
+      const saved = localStorage.getItem('bizdev-panel-order');
+      let order;
+      try {
+        order = saved ? JSON.parse(saved) : PANEL_IDS;
+      } catch {
+        order = PANEL_IDS;
+      }
+      // Ensure order only contains valid panel IDs
+      order = order.filter(id => PANEL_IDS.includes(id));
+      // Add any missing panels at the end
+      PANEL_IDS.forEach(id => { if (!order.includes(id)) order.push(id); });
+
+      const main = document.querySelector('main');
+      const pipeline = document.getElementById('pipeline');
+      // Collect all panels in order
+      const panels = order.map(id => document.getElementById(id)).filter(Boolean);
+      // Move pipeline to first position (avoids innerHTML clear which destroys listeners)
+      main.insertBefore(pipeline, main.firstChild);
+      // Appending a node already in the DOM moves it — reorders panels safely
+      panels.forEach(el => main.appendChild(el));
+    }
+
+    function initPanelOrder() {
+      applyPanelOrder();
+
+      PANEL_IDS.forEach(id => {
+        const section = document.getElementById(id);
+        if (!section) return;
+
+        // Add drag handle if not already present
+        if (!section.querySelector('.panel-drag-handle')) {
+          const handle = document.createElement('div');
+          handle.className = 'panel-drag-handle';
+          handle.innerHTML = '&#8942;&#8942;';
+          handle.setAttribute('draggable', 'false');
+          handle.setAttribute('tabindex', '0');
+          handle.setAttribute('role', 'button');
+          handle.setAttribute('aria-label', 'Reorder panel — use arrow keys to move up or down');
+          handle.addEventListener('keydown', e => {
+            if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+            e.preventDefault();
+            const saved = localStorage.getItem('bizdev-panel-order');
+            let order;
+            try { order = saved ? JSON.parse(saved) : [...PANEL_IDS]; } catch { order = [...PANEL_IDS]; }
+            order = order.filter(pid => PANEL_IDS.includes(pid));
+            PANEL_IDS.forEach(pid => { if (!order.includes(pid)) order.push(pid); });
+            const idx = order.indexOf(id);
+            if (idx === -1) return;
+            const newIdx = e.key === 'ArrowUp' ? idx - 1 : idx + 1;
+            if (newIdx < 0 || newIdx >= order.length) return;
+            order.splice(idx, 1);
+            order.splice(newIdx, 0, id);
+            localStorage.setItem('bizdev-panel-order', JSON.stringify(order));
+            applyPanelOrder();
+            setTimeout(() => document.querySelector(`#${id} .panel-drag-handle`)?.focus(), 30);
+          });
+          section.prepend(handle);
+        }
+
+        section.setAttribute('draggable', 'true');
+
+        // Skip attaching listeners if already done (prevents duplicates on re-render)
+        if (section.dataset.panelListeners === 'true') return;
+        section.dataset.panelListeners = 'true';
+
+        section.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('panelId', id);
+          setTimeout(() => section.classList.add('panel-dragging'), 0);
+        });
+        section.addEventListener('dragend', () => section.classList.remove('panel-dragging'));
+        section.addEventListener('dragover', e => { e.preventDefault(); section.classList.add('panel-drag-over'); });
+        section.addEventListener('dragleave', () => section.classList.remove('panel-drag-over'));
+        section.addEventListener('drop', e => {
+          e.preventDefault();
+          section.classList.remove('panel-drag-over');
+          const fromId = e.dataTransfer.getData('panelId');
+          if (!fromId || fromId === id || fromId === 'pipeline' || !PANEL_IDS.includes(fromId)) return;
+
+          const saved = localStorage.getItem('bizdev-panel-order');
+          let order;
+          try { order = saved ? JSON.parse(saved) : [...PANEL_IDS]; } catch { order = [...PANEL_IDS]; }
+          order = order.filter(pid => PANEL_IDS.includes(pid));
+          PANEL_IDS.forEach(pid => { if (!order.includes(pid)) order.push(pid); });
+
+          const fromIdx = order.indexOf(fromId);
+          const toIdx = order.indexOf(id);
+          if (fromIdx === -1 || toIdx === -1) return;
+          order.splice(fromIdx, 1);
+          order.splice(toIdx, 0, fromId);
+          localStorage.setItem('bizdev-panel-order', JSON.stringify(order));
+          applyPanelOrder();
+        });
+      });
+    }
+
+    function getGuideSteps() {
+      return [
+        { target: null,       title: t('tourWelcomeTitle'),  text: t('tourWelcomeText') },
+        { target: 'pipeline', title: t('tourPipelineTitle'), text: t('tourPipelineText') },
+        { target: 'income',   title: t('tourIncomeTitle'),   text: t('tourIncomeText') },
+        { target: 'capacity', title: t('tourCapacityTitle'), text: t('tourCapacityText') },
+        { target: 'chat',     title: t('tourChatTitle'),     text: t('tourChatText') },
+        { target: 'header',   title: t('tourModeTitle'),     text: t('tourModeText') },
+        { target: null,       title: t('tourReadyTitle'),    text: t('tourReadyText'), isLast: true },
+      ];
+    }
+
+    function startGuide() {
+      let step = 0;
+      let overlay, tooltip, highlighted, cleanupGuideFocusFn;
+
+      function cleanup() {
+        cleanupGuideFocusFn?.();
+        overlay?.remove();
+        tooltip?.remove();
+        if (highlighted) {
+          highlighted.classList.remove('guide-highlighted');
+          highlighted = null;
+        }
+      }
+
+      function showStep() {
+        cleanup();
+        const GUIDE_STEPS = getGuideSteps();
+        const s = GUIDE_STEPS[step];
+
+        overlay = document.createElement('div');
+        overlay.className = 'guide-overlay';
+        document.body.appendChild(overlay);
+
+        if (s.target) {
+          const targetEl = s.target === 'header'
+            ? document.querySelector('header')
+            : document.getElementById(s.target);
+          if (targetEl) {
+            highlighted = targetEl;
+            highlighted.classList.add('guide-highlighted');
+            targetEl.scrollIntoView({ behavior: 'instant', block: 'nearest' });
+          }
+        }
+
+        tooltip = document.createElement('div');
+        tooltip.className = 'guide-tooltip';
+
+        const dontShowHTML = s.isLast
+          ? `<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:12px;">
+              <input type="checkbox" id="guideDontShow"> Don't show again
+            </label>`
+          : '';
+
+        tooltip.innerHTML = `
+          <button class="modal-close" aria-label="Close" id="guideClose">&times;</button>
+          <h4></h4>
+          <p></p>
+          ${dontShowHTML}
+          <div class="guide-nav">
+            <span class="guide-progress">Step ${step + 1} of ${getGuideSteps().length}</span>
+            <div style="display:flex;gap:8px;">
+              ${step > 0 ? '<button class="btn-sm" id="guidePrev">Back</button>' : ''}
+              <button class="btn btn-primary" id="guideNext">${s.isLast ? 'Done' : 'Next'}</button>
+            </div>
+          </div>
+        `;
+
+        // Set text content safely (no XSS)
+        tooltip.querySelector('h4').textContent = s.title;
+        tooltip.querySelector('p').textContent = s.text;
+
+        // Position tooltip — keep within viewport, never overlap highlighted element
+        if (s.target) {
+          const el = s.target === 'header'
+            ? document.querySelector('header')
+            : document.getElementById(s.target);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            const TH = 210; // tooltip estimated height
+            const TW = 320; // tooltip width
+            const GAP = 14;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            // Available space on each side.
+            // rect coords are viewport-relative; tooltip is position:fixed
+            // so no scrollY adjustment is needed.
+            const spaceBelow = vh - rect.bottom;
+            const spaceAbove = rect.top;
+            const spaceRight = vw - rect.right;
+            const spaceLeft  = rect.left;
+            const best = Math.max(spaceBelow, spaceAbove, spaceRight, spaceLeft);
+
+            let top, left;
+            if (best === spaceBelow && spaceBelow >= TH + GAP) {
+              top  = rect.bottom + GAP;
+              left = Math.min(Math.max(8, rect.left), vw - TW - 8);
+            } else if (best === spaceAbove && spaceAbove >= TH + GAP) {
+              top  = rect.top - TH - GAP;
+              left = Math.min(Math.max(8, rect.left), vw - TW - 8);
+            } else if (best === spaceRight && spaceRight >= TW + GAP) {
+              left = rect.right + GAP;
+              top  = Math.min(Math.max(8, rect.top), vh - TH - 8);
+            } else if (best === spaceLeft && spaceLeft >= TW + GAP) {
+              left = rect.left - TW - GAP;
+              top  = Math.min(Math.max(8, rect.top), vh - TH - 8);
+            } else {
+              // Element fills screen — centre tooltip
+              top  = Math.max(8, (vh - TH) / 2);
+              left = Math.max(8, (vw - TW) / 2);
+            }
+            tooltip.style.top  = top + 'px';
+            tooltip.style.left = Math.max(8, left) + 'px';
+          }
+        } else {
+          tooltip.style.top = '50%';
+          tooltip.style.left = '50%';
+          tooltip.style.transform = 'translate(-50%, -50%)';
+        }
+
+        document.body.appendChild(tooltip);
+        cleanupGuideFocusFn = trapFocus(tooltip, cleanup);
+
+        document.getElementById('guideNext').addEventListener('click', () => {
+          if (s.isLast) {
+            if (document.getElementById('guideDontShow')?.checked) {
+              localStorage.setItem('bizdev-guide-seen', 'true');
+            }
+            cleanup();
+          } else {
+            step++;
+            showStep();
+          }
+        });
+        document.getElementById('guidePrev')?.addEventListener('click', () => { step--; showStep(); });
+        document.getElementById('guideClose').addEventListener('click', cleanup);
+        overlay.addEventListener('click', cleanup);
+      }
+
+      showStep();
+    }
+
+    function maybeShowGuide() {
+      if (getMode() === 'demo' && !localStorage.getItem('bizdev-guide-seen')) {
+        setTimeout(startGuide, 600);
+      }
+    }
+
+    function renderAll() {
+      renderHeader();
+      renderPipeline();
+      renderIncome();
+      renderCapacity();
+      renderActions();
+      renderChat();
+      initPanelOrder();
+      // Keep section aria-labels in sync with current language
+      document.getElementById('pipeline')?.setAttribute('aria-label', t('pipeline'));
+      document.getElementById('income')?.setAttribute('aria-label', t('income'));
+      document.getElementById('capacity')?.setAttribute('aria-label', t('timeCapacity'));
+      document.getElementById('actions')?.setAttribute('aria-label', t('nextActions'));
+      document.getElementById('chat')?.setAttribute('aria-label', t('tourChatTitle'));
+    }
+
+    function init() {
+      document.documentElement.lang = getCurrentLang();
+      initTheme();
+      renderAll();
+      initPanelOrder();
+      maybeShowGuide();
+    }
+
+    init();
+  </script>
+</body>
+</html>
