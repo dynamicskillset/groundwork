@@ -945,6 +945,7 @@ button:focus-visible,
     <a href="https://en.wikipedia.org/wiki/GNU_Affero_General_Public_License" target="_blank" rel="noopener">AGPL-3.0</a>
   </footer>
   <script>
+    const DEMO_VERSION = 3;
     const DEFAULT_DATA = {
       freelancer: {
         name: 'Alex Morgan',
@@ -1018,6 +1019,11 @@ button:focus-visible,
         const saved = localStorage.getItem(storageKey());
         if (!saved) return JSON.parse(JSON.stringify(DEFAULT_DATA));
         const data = JSON.parse(saved);
+        // Reset demo data if version has changed
+        if (getMode() === 'demo' && data._demoVersion !== DEMO_VERSION) {
+          localStorage.removeItem(storageKey());
+          return JSON.parse(JSON.stringify(DEFAULT_DATA));
+        }
         // Migrate: ensure pipeline has all columns
         if (data.pipeline && !Array.isArray(data.pipeline.paid)) {
           data.pipeline.paid = [];
@@ -1030,6 +1036,7 @@ button:focus-visible,
 
     function saveData(data) {
       try {
+        if (getMode() === 'demo') data._demoVersion = DEMO_VERSION;
         localStorage.setItem(storageKey(), JSON.stringify(data));
       } catch (e) {
         if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
