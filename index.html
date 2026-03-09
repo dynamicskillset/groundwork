@@ -1029,6 +1029,10 @@ button:focus-visible,
         if (data.pipeline && !Array.isArray(data.pipeline.paid)) {
           data.pipeline.paid = [];
         }
+        // Migrate: ensure projection settings exist
+        if (data.freelancer && !data.freelancer.projectionSettings) {
+          data.freelancer.projectionSettings = { mode: 'formula', includeLeads: false, includeProposals: true };
+        }
         return data;
       } catch {
         return JSON.parse(JSON.stringify(DEFAULT_DATA));
@@ -1391,7 +1395,7 @@ button:focus-visible,
         parseError:'Impossible d\u2019analyser la r\u00e9ponse \u2014 essayez de reformuler.', genericError:'Une erreur est survenue. R\u00e9essayez.',
         undoUpdate:'Annuler la derni\u00e8re mise \u00e0 jour', weekHoursLabel:'Heures disponibles par semaine',
         editIncome:'Modifier les mois', doneEditing:'Termin\u00e9',
-        fiscalYearChangedMsg:"Le d\u00e9but de l'exercice a chang\u00e9. Que faire des donn\u00e9es de revenus existantes\u00a0?",
+        fiscalYearChangedMsg:"Le d\u00e9but de l\u2019exercice a chang\u00e9. Que faire des donn\u00e9es de revenus existantes\u00a0?",
         fiscalYearKeep:'Conserver les donn\u00e9es',
         fiscalYearReset:'R\u00e9initialiser \u00e0 z\u00e9ro',
         tourWelcomeTitle:'Bienvenue dans Groundwork',
@@ -1741,6 +1745,56 @@ button:focus-visible,
         </div>
       </div>
 
+      <div class="settings-section" id="section-projection">
+        <button class="settings-section-header" type="button" aria-expanded="false" aria-controls="section-projection-body">
+          <span>Projection</span>
+          <span class="settings-chevron">&#9654;</span>
+        </button>
+        <div class="settings-section-body" id="section-projection-body">
+          <div class="settings-section-body-inner">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Choose how the <strong>Projected year-end</strong> figure is calculated.</p>
+
+          <div style="margin-bottom:16px;">
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:8px;">
+              <input type="radio" name="projectionMode" value="formula" id="proj-mode-formula" style="margin-top:2px;accent-color:var(--teal-text);cursor:pointer;">
+              <span style="font-size:13px;"><strong>Monthly average</strong><br><span style="color:var(--muted);font-size:12px;">Extrapolates from your income actuals: YTD + (average &times; remaining months)</span></span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+              <input type="radio" name="projectionMode" value="pipeline" id="proj-mode-pipeline" style="margin-top:2px;accent-color:var(--teal-text);cursor:pointer;">
+              <span style="font-size:13px;"><strong>Pipeline total</strong><br><span style="color:var(--muted);font-size:12px;">Sums the value of selected pipeline stages below</span></span>
+            </label>
+          </div>
+
+          <div id="proj-pipeline-options" style="margin-left:28px;margin-bottom:8px;">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:8px;">Include in projection:</p>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px;">
+              <input type="checkbox" id="proj-inc-leads" style="accent-color:var(--teal-text);cursor:pointer;">
+              <span style="font-size:13px;">Leads</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px;">
+              <input type="checkbox" id="proj-inc-proposals" style="accent-color:var(--teal-text);cursor:pointer;">
+              <span style="font-size:13px;">Proposals</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:default;opacity:0.55;">
+              <input type="checkbox" checked disabled style="accent-color:var(--teal-text);">
+              <span style="font-size:13px;">Active <span style="color:var(--muted);font-size:11px;">(always included)</span></span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:default;opacity:0.55;">
+              <input type="checkbox" checked disabled style="accent-color:var(--teal-text);">
+              <span style="font-size:13px;">Invoiced <span style="color:var(--muted);font-size:11px;">(always included)</span></span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:default;opacity:0.55;">
+              <input type="checkbox" checked disabled style="accent-color:var(--teal-text);">
+              <span style="font-size:13px;">Paid <span style="color:var(--muted);font-size:11px;">(always included)</span></span>
+            </label>
+          </div>
+
+          <button class="btn-sm" id="proj-save" style="margin-top:8px;">Save</button>
+          <span id="proj-saved-msg" style="display:none;margin-left:8px;font-size:12px;color:var(--teal-text);">Saved</span>
+          </div>
+        </div>
+      </div>
+
       <div class="settings-section" id="section-data">
         <button class="settings-section-header" type="button" aria-expanded="false" aria-controls="section-data-body">
           <span>Data</span>
@@ -1892,6 +1946,31 @@ button:focus-visible,
     applyHighContrast(e.target.checked);
     if (incomeChart) { incomeChart.destroy(); incomeChart = null; }
     if (document.getElementById('income')?.querySelector('canvas')) renderIncome();
+  });
+
+  // Projection settings — populate
+  const projSettings = DATA.freelancer.projectionSettings || { mode: 'formula', includeLeads: false, includeProposals: true };
+  document.getElementById('proj-mode-' + projSettings.mode).checked = true;
+  document.getElementById('proj-inc-leads').checked = !!projSettings.includeLeads;
+  document.getElementById('proj-inc-proposals').checked = !!projSettings.includeProposals;
+  document.getElementById('proj-pipeline-options').style.display = projSettings.mode === 'pipeline' ? '' : 'none';
+  document.querySelectorAll('input[name="projectionMode"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      document.getElementById('proj-pipeline-options').style.display = radio.value === 'pipeline' ? '' : 'none';
+    });
+  });
+  document.getElementById('proj-save').addEventListener('click', () => {
+    const mode = document.querySelector('input[name="projectionMode"]:checked').value;
+    DATA.freelancer.projectionSettings = {
+      mode,
+      includeLeads: document.getElementById('proj-inc-leads').checked,
+      includeProposals: document.getElementById('proj-inc-proposals').checked,
+    };
+    saveData(DATA);
+    renderIncome();
+    const msg = document.getElementById('proj-saved-msg');
+    msg.style.display = 'inline';
+    setTimeout(() => { msg.style.display = 'none'; }, 2000);
   });
 
   // Export
@@ -2662,6 +2741,7 @@ button:focus-visible,
           DATA.pipeline[toCol].push(item);
           saveData(DATA);
           renderPipeline();
+          renderIncome();
           if (toCol === 'paid') {
             const paidCards = document.querySelectorAll('[data-col="paid"] .pipeline-card');
             const last = paidCards[paidCards.length - 1];
@@ -2751,6 +2831,7 @@ button:focus-visible,
           DATA.pipeline[colKey].splice(idx, 1);
           saveData(DATA);
           renderPipeline();
+          renderIncome();
           close();
         });
       }
@@ -2780,6 +2861,7 @@ button:focus-visible,
         }
         saveData(DATA);
         renderPipeline();
+        renderIncome();
         close();
       });
     }
@@ -2800,7 +2882,16 @@ button:focus-visible,
       const best = filled.length ? Math.max(...filled) : 0;
       const avg = filled.length ? Math.round(filled.reduce((s, v) => s + v, 0) / filled.length) : 0;
       const remainingMonths = 12 - filled.length;
-      const projected = ytd + Math.round(avg * remainingMonths);
+      const projSettings = DATA.freelancer.projectionSettings || { mode: 'formula', includeLeads: false, includeProposals: true };
+      let projected;
+      if (projSettings.mode === 'pipeline') {
+        const sum = (key) => (DATA.pipeline[key] || []).reduce((s, i) => s + (i.value || 0), 0);
+        projected = sum('active') + sum('invoiced') + sum('paid');
+        if (projSettings.includeLeads) projected += sum('leads');
+        if (projSettings.includeProposals) projected += sum('proposals');
+      } else {
+        projected = ytd + Math.round(avg * remainingMonths);
+      }
 
       const monthInputs = displayMonths.map((m, i) => {
         const canonIdx = (fiscalStart + i) % 12;
