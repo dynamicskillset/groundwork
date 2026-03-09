@@ -1266,6 +1266,14 @@ button:focus-visible,
     let incomeChart = null;
     let incomeEditOpen = false;
 
+    // Returns 0-based index of first month in fiscal year (0=Jan … 11=Dec)
+    // yearEnd is "DD/MM"; e.g. "30/06" → 6 (July), "05/04" → 4 (May), "31/12" → 0 (Jan)
+    function getFiscalStartMonth() {
+      const ye = (DATA.freelancer.yearEnd || '').trim();
+      const m = parseInt(ye.split('/')[1], 10);
+      return (isNaN(m) || m < 1 || m > 12) ? 0 : m % 12;
+    }
+
     // ── i18n ─────────────────────────────────────────────────────────────
     const TRANSLATIONS = {
       en: {
