@@ -2731,6 +2731,10 @@ button:focus-visible,
       }
       document.getElementById('income').style.display = '';
       const { months, actuals } = DATA.income;
+      const fiscalStart = getFiscalStartMonth();
+      const rotate = arr => fiscalStart === 0 ? arr : arr.slice(fiscalStart).concat(arr.slice(0, fiscalStart));
+      const displayMonths = rotate(months);
+      const displayActuals = rotate(actuals);
       const ytd = DATA.freelancer.ytdIncome;
       const filled = actuals.filter(v => v > 0);
       const best = filled.length ? Math.max(...filled) : 0;
@@ -2738,12 +2742,15 @@ button:focus-visible,
       const remainingMonths = 12 - filled.length;
       const projected = ytd + Math.round(avg * remainingMonths);
 
-      const monthInputs = months.map((m, i) => `
-        <div class="income-month-input">
-          <label for="income-month-${i}">${m}</label>
-          <input id="income-month-${i}" type="number" class="income-actual-input" data-idx="${i}" value="${actuals[i] || ''}" placeholder="0" min="0" inputmode="decimal" autocomplete="off">
-        </div>
-      `).join('');
+      const monthInputs = displayMonths.map((m, i) => {
+        const canonIdx = (fiscalStart + i) % 12;
+        return `
+          <div class="income-month-input">
+            <label for="income-month-${canonIdx}">${m}</label>
+            <input id="income-month-${canonIdx}" type="number" class="income-actual-input" data-idx="${canonIdx}" value="${actuals[canonIdx] || ''}" placeholder="0" min="0" inputmode="decimal" autocomplete="off">
+          </div>
+        `;
+      }).join('');
 
       document.getElementById('income').innerHTML = `
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -2784,10 +2791,10 @@ button:focus-visible,
       incomeChart = new Chart(canvas, {
         type: 'bar',
         data: {
-          labels: months,
+          labels: displayMonths,
           datasets: [{
-            data: actuals,
-            backgroundColor: (() => { const style = getComputedStyle(document.documentElement); const teal = style.getPropertyValue('--teal').trim(); const border = style.getPropertyValue('--border').trim(); return actuals.map(v => v > 0 ? teal : border); })(),
+            data: displayActuals,
+            backgroundColor: (() => { const style = getComputedStyle(document.documentElement); const teal = style.getPropertyValue('--teal').trim(); const border = style.getPropertyValue('--border').trim(); return displayActuals.map(v => v > 0 ? teal : border); })(),
             borderRadius: 4,
             borderSkipped: false,
           }]
