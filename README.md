@@ -1,6 +1,6 @@
 # Groundwork
 
-**[Download the latest version](https://github.com/dynamicskillset/groundwork/releases/latest/download/index.html)**
+**[Download the latest version](https://github.com/dynamicskillset/groundwork/releases/latest)**
 
 ![Dashboard screenshot](screenshot.png)
 
@@ -20,12 +20,16 @@ Everything is saved in your browser — there's no account, no server, and nothi
 
 ## Getting started
 
-1. Download `index.html`
+1. Download the latest `groundwork-x.x.x.html` file from the [releases page](https://github.com/dynamicskillset/groundwork/releases/latest)
 2. Open it in any web browser (Chrome, Firefox, Safari, Edge)
 3. Answer a few quick setup questions (your name, currency, annual income target)
 4. You're in
 
 Take the guided tour on first load — it walks you through each section in about two minutes.
+
+## Updating to a new version
+
+Download the new `groundwork-x.x.x.html` file and open it — your data is stored in the browser, not the file, so everything carries over automatically. You can delete the old file once you've confirmed the new one looks right.
 
 ## Languages
 
