@@ -1049,9 +1049,9 @@ button:focus-visible,
     // NOTE: openSettings() interpolates name, hint, and url directly into innerHTML/href.
     // If PROVIDERS ever becomes dynamic, sanitize those fields. url must start with https://.
     const PROVIDERS = {
-      claude:  { name: 'Claude',   hint: 'Get your API key',  url: 'https://console.anthropic.com',           placeholder: 'sk-ant-...' },
+      // claude:  { name: 'Claude',   hint: 'Get your API key',  url: 'https://console.anthropic.com',           placeholder: 'sk-ant-...' },
       gemini:  { name: 'Gemini',   hint: 'Get your API key',  url: 'https://aistudio.google.com/apikey',      placeholder: 'AIza...' },
-      chatgpt: { name: 'ChatGPT',  hint: 'Get your API key',  url: 'https://platform.openai.com/api-keys',    placeholder: 'sk-...' },
+      // chatgpt: { name: 'ChatGPT',  hint: 'Get your API key',  url: 'https://platform.openai.com/api-keys',    placeholder: 'sk-...' },
       mistral: { name: 'Mistral',  hint: 'Get your API key',  url: 'https://console.mistral.ai/api-keys',     placeholder: 'your-key...' },
       ollama: { name: 'Ollama', hint: 'Runs on your computer — no API key needed', url: 'https://ollama.com', placeholder: '', isLocal: true },
     };
@@ -1120,7 +1120,8 @@ button:focus-visible,
     }
 
     function getActiveModel() {
-      return localStorage.getItem('bizdev-active-model') || 'claude';
+      const stored = localStorage.getItem('bizdev-active-model');
+      return (stored && PROVIDERS[stored]) ? stored : Object.keys(PROVIDERS)[0];
     }
     function setActiveModel(model) {
       localStorage.setItem('bizdev-active-model', model);
@@ -1314,7 +1315,7 @@ button:focus-visible,
         tourCapacityTitle:'Time & Capacity',
         tourCapacityText:"See how this week's hours are split across clients. Use the Log time button to track hours as you work.",
         tourChatTitle:'Ask AI',
-        tourChatText:'Describe changes in plain English and the dashboard updates automatically. Works with Claude, Gemini, ChatGPT, Mistral, or Ollama — or manage everything manually without AI.',
+        tourChatText:'Describe changes in plain English and the dashboard updates automatically. Works with Gemini, Mistral, or Ollama — or manage everything manually without AI.',
         tourModeTitle:'Demo vs Live mode',
         tourModeText:"You're in Demo mode — nothing is saved. Switch to Live to use your own data. Export anytime for a backup.",
         tourReadyTitle:"You're ready!",
@@ -1358,7 +1359,7 @@ button:focus-visible,
         tourCapacityTitle:'Tiempo y capacidad',
         tourCapacityText:'Consulta c\u00f3mo se distribuyen tus horas esta semana. Usa el bot\u00f3n Registrar para registrar horas.',
         tourChatTitle:'Asistente IA',
-        tourChatText:'Describe los cambios con tus palabras y el panel se actualiza autom\u00e1ticamente. Funciona con Claude, Gemini, ChatGPT, Mistral u Ollama — o sin IA.',
+        tourChatText:'Describe los cambios con tus palabras y el panel se actualiza autom\u00e1ticamente. Funciona con Gemini, Mistral u Ollama — o sin IA.',
         tourModeTitle:'Modo Demo vs. En directo',
         tourModeText:'Est\u00e1s en modo Demo — los datos no se guardan. Cambia a En directo para usar tus propios datos. Exporta cuando quieras.',
         tourReadyTitle:'\u00a1Listo!',
@@ -1402,7 +1403,7 @@ button:focus-visible,
         tourCapacityTitle:'Temps et capacit\u00e9',
         tourCapacityText:'Voyez comment vos heures sont r\u00e9parties cette semaine. Utilisez le bouton Saisir pour enregistrer votre temps.',
         tourChatTitle:"Demander \u00e0 l\u2019IA",
-        tourChatText:"D\u00e9crivez les changements et le tableau de bord se met \u00e0 jour automatiquement. Fonctionne avec Claude, Gemini, ChatGPT, Mistral ou Ollama \u2014 ou sans IA.",
+        tourChatText:"D\u00e9crivez les changements et le tableau de bord se met \u00e0 jour automatiquement. Fonctionne avec Gemini, Mistral ou Ollama \u2014 ou sans IA.",
         tourModeTitle:'Mode D\u00e9mo vs En direct',
         tourModeText:"Vous \u00eates en mode D\u00e9mo \u2014 rien n\u2019est sauvegard\u00e9. Passez en Direct pour utiliser vos propres donn\u00e9es.",
         tourReadyTitle:'Vous \u00eates pr\u00eat\u00a0!',
@@ -1446,7 +1447,7 @@ button:focus-visible,
         tourCapacityTitle:'Zeit \u0026 Kapazit\u00e4t',
         tourCapacityText:'Sehen Sie, wie Ihre Stunden diese Woche verteilt sind. Nutzen Sie die Schaltfl\u00e4che Erfassen zum Zeittracking.',
         tourChatTitle:'KI fragen',
-        tourChatText:'Beschreiben Sie \u00c4nderungen und das Dashboard aktualisiert sich automatisch. Funktioniert mit Claude, Gemini, ChatGPT, Mistral oder Ollama \u2014 oder ohne KI.',
+        tourChatText:'Beschreiben Sie \u00c4nderungen und das Dashboard aktualisiert sich automatisch. Funktioniert mit Gemini, Mistral oder Ollama \u2014 oder ohne KI.',
         tourModeTitle:'Demo vs. Live-Modus',
         tourModeText:'Sie sind im Demo-Modus \u2014 nichts wird gespeichert. Wechseln Sie zu Live, um Ihre eigenen Daten zu nutzen.',
         tourReadyTitle:'Sie sind bereit!',
@@ -1490,7 +1491,7 @@ button:focus-visible,
         tourCapacityTitle:'Tempo e capacit\u00e0',
         tourCapacityText:"Vedi come sono distribuite le tue ore questa settimana. Usa il pulsante Registra per tracciare il tempo.",
         tourChatTitle:"Chiedi all\u2019IA",
-        tourChatText:"Descrivi le modifiche e il cruscotto si aggiorna automaticamente. Funziona con Claude, Gemini, ChatGPT, Mistral o Ollama \u2014 o senza IA.",
+        tourChatText:"Descrivi le modifiche e il cruscotto si aggiorna automaticamente. Funziona con Gemini, Mistral o Ollama \u2014 o senza IA.",
         tourModeTitle:'Modalit\u00e0 Demo vs Live',
         tourModeText:'Sei in modalit\u00e0 Demo \u2014 nulla viene salvato. Passa a Live per usare i tuoi dati. Esporta quando vuoi.',
         tourReadyTitle:'Sei pronto!',
