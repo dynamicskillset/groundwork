@@ -2922,7 +2922,7 @@ button:focus-visible,
       document.getElementById('capacity').innerHTML = `
         <h2>${t('timeCapacity')}</h2>
         <div class="capacity-summary">
-          <span class="capacity-hours">${loggedHours}h</span>
+          <span class="capacity-hours">${Math.max(0, weekHours - loggedHours)}h</span>
           <span class="capacity-of">${t('of')}
             <span id="weekHoursDisplay" title="${t('weekHoursLabel')}" style="cursor:pointer;border-bottom:1px dashed var(--muted);" tabindex="0" role="button" aria-label="${t('weekHoursLabel')}: ${weekHours}">${weekHours}h</span>
             ${t('available')}
