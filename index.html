@@ -1950,6 +1950,7 @@ button:focus-visible,
     const name = document.getElementById('prof-name').value.trim();
     const role = document.getElementById('prof-role').value.trim();
     if (!name || !role) return;
+    const oldFiscalStart = getFiscalStartMonth();
     const currencyRaw = document.getElementById('prof-currency').value;
     const selectedLang = document.getElementById('prof-lang')?.value || 'en';
     DATA.freelancer.name = name;
@@ -1963,6 +1964,44 @@ button:focus-visible,
       DATA.freelancer.vatNumber = document.getElementById('prof-vatnum').value.trim();
       DATA.freelancer.vatRate = parseFloat(document.getElementById('prof-vatrate').value) || 20;
     }
+    const newFiscalStart = getFiscalStartMonth();
+    const hasIncomeData = DATA.income.actuals.some(v => v > 0);
+
+    if (newFiscalStart !== oldFiscalStart && hasIncomeData) {
+      // Show keep/reset prompt
+      const prompt = document.getElementById('fiscal-change-prompt');
+      const msg = document.getElementById('fiscal-change-msg');
+      const keepBtn = document.getElementById('fiscal-keep-btn');
+      const resetBtn = document.getElementById('fiscal-reset-btn');
+      if (prompt && msg && keepBtn && resetBtn) {
+        msg.textContent = t('fiscalYearChangedMsg');
+        keepBtn.textContent = t('fiscalYearKeep');
+        resetBtn.textContent = t('fiscalYearReset');
+        prompt.style.display = 'block';
+
+        keepBtn.onclick = () => {
+          prompt.style.display = 'none';
+          saveData(DATA);
+          localStorage.setItem('bizdev-lang', selectedLang);
+          renderAll();
+          const savedEl = document.getElementById('prof-saved');
+          if (savedEl) { savedEl.style.display = 'inline'; setTimeout(() => { savedEl.style.display = 'none'; }, 3000); }
+        };
+        resetBtn.onclick = () => {
+          DATA.income.actuals = Array(12).fill(0);
+          DATA.freelancer.ytdIncome = 0;
+          prompt.style.display = 'none';
+          saveData(DATA);
+          localStorage.setItem('bizdev-lang', selectedLang);
+          renderAll();
+          const savedEl = document.getElementById('prof-saved');
+          if (savedEl) { savedEl.style.display = 'inline'; setTimeout(() => { savedEl.style.display = 'none'; }, 3000); }
+        };
+        return; // Don't save yet — wait for user choice
+      }
+    }
+
+    // No fiscal year change (or no data) — save immediately
     saveData(DATA);
     localStorage.setItem('bizdev-lang', selectedLang);
     renderAll();
