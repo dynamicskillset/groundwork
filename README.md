@@ -41,9 +41,7 @@ The "Ask AI" box lets you update your dashboard by describing what happened, rat
 
 | Service | Where to sign up |
 |---|---|
-| Claude (Anthropic) | console.anthropic.com |
 | Gemini (Google) | aistudio.google.com |
-| ChatGPT (OpenAI) | platform.openai.com |
 | Mistral | console.mistral.ai |
 | Ollama | Run locally on your computer — free, no account needed |
 
@@ -63,3 +61,12 @@ Everything works with a keyboard if you prefer not to use a mouse:
 ## Licence
 
 AGPL-3.0. If you distribute or host a modified version, you must make the source available under the same terms.
+
+## Changelog
+
+### v1.0.1
+- Income chart now starts from the correct month based on your financial year end date
+- Claude and ChatGPT integrations temporarily removed pending further testing
+
+### v1.0
+- Initial release
