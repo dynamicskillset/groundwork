@@ -3105,7 +3105,7 @@ button:focus-visible,
 
     function renderChat() {
       const model = getActiveModel();
-      const provider = PROVIDERS[model] || PROVIDERS['claude'];
+      const provider = PROVIDERS[model] || PROVIDERS[Object.keys(PROVIDERS)[0]];
       const hasKey = !!getProviderKey(model);
       const lastUpdate = localStorage.getItem('bizdev-last-update') || '';
       const isDemo = getMode() === 'demo';
