@@ -68,6 +68,11 @@ AGPL-3.0. If you distribute or host a modified version, you must make the source
 
 ## Changelog
 
+### v1.1.0
+- New: choose how the Projected year-end figure is calculated — monthly average extrapolation (default) or pipeline total
+- Pipeline total mode lets you include or exclude Leads and Proposals; Active, Invoiced, and Paid are always counted
+- Projected year-end now updates live when pipeline cards are added, edited, deleted, or dragged between columns
+
 ### v1.0.1
 - Income chart now starts from the correct month based on your financial year end date
 - Claude and ChatGPT integrations temporarily removed pending further testing
