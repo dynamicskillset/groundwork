@@ -954,6 +954,7 @@ button:focus-visible,
         dayRate: 450,
         annualTarget: 60000,
         ytdIncome: 38200,
+        projectionSettings: { mode: 'formula', includeLeads: false, includeProposals: true },
       },
 
       pipeline: {
@@ -1028,6 +1029,10 @@ button:focus-visible,
         // Migrate: ensure pipeline has all columns
         if (data.pipeline && !Array.isArray(data.pipeline.paid)) {
           data.pipeline.paid = [];
+        }
+        // Migrate: ensure projection settings exist
+        if (data.freelancer && !data.freelancer.projectionSettings) {
+          data.freelancer.projectionSettings = { mode: 'formula', includeLeads: false, includeProposals: true };
         }
         return data;
       } catch {
@@ -1306,6 +1311,15 @@ button:focus-visible,
         fiscalYearChangedMsg:'Fiscal year start has changed. What should happen to your existing income data?',
         fiscalYearKeep:'Keep existing data',
         fiscalYearReset:'Reset to zero',
+        projectionTitle:'Projection',
+        projectionDesc:'Choose how the Projected year-end figure is calculated.',
+        projectionMonthlyDesc:'Extrapolates from your income actuals: YTD\u00a0+\u00a0(average\u00a0\u00d7\u00a0remaining months)',
+        projectionPipelineLabel:'Pipeline total',
+        projectionPipelineDesc:'Sums the value of selected pipeline stages',
+        projectionInclude:'Include in projection:',
+        projectionAlwaysIncluded:'always included',
+        saveBtn:'Save',
+        savedConfirm:'Saved',
         tourWelcomeTitle:'Welcome to Groundwork',
         tourWelcomeText:"Groundwork is your personal business dashboard for freelancers — track your pipeline, income, time, and next actions all in one place.\nYour data lives entirely on this device — nothing is sent anywhere. The dashboard works fully offline and without AI. AI assistance is optional: if you add an API key, you can update your data in plain English.",
         tourPipelineTitle:'Pipeline',
@@ -1350,6 +1364,15 @@ button:focus-visible,
         fiscalYearChangedMsg:'El inicio del año fiscal ha cambiado. ¿Qué hacemos con los datos de ingresos existentes?',
         fiscalYearKeep:'Mantener los datos',
         fiscalYearReset:'Reiniciar a cero',
+        projectionTitle:'Proyecci\u00f3n',
+        projectionDesc:'Elige c\u00f3mo se calcula la proyecci\u00f3n de fin de a\u00f1o.',
+        projectionMonthlyDesc:'Extrapola a partir de tus ingresos reales: YTD\u00a0+\u00a0(media\u00a0\u00d7\u00a0meses restantes)',
+        projectionPipelineLabel:'Total del pipeline',
+        projectionPipelineDesc:'Suma el valor de las etapas del pipeline seleccionadas',
+        projectionInclude:'Incluir en la proyecci\u00f3n:',
+        projectionAlwaysIncluded:'siempre incluido',
+        saveBtn:'Guardar',
+        savedConfirm:'Guardado',
         tourWelcomeTitle:'Bienvenido a Groundwork',
         tourWelcomeText:'Groundwork es tu panel de negocio personal para aut\u00f3nomos \u2014 gestiona tu cartera de proyectos, ingresos, tiempo y pr\u00f3ximas acciones en un solo lugar.\nTus datos viven en este dispositivo \u2014 nada se env\u00eda a ning\u00fan servidor. El panel funciona completamente sin conexi\u00f3n y sin IA. La IA es opcional: si a\u00f1ades una clave API, puedes actualizar tus datos en lenguaje natural.',
         tourPipelineTitle:'Pipeline',
@@ -1391,9 +1414,18 @@ button:focus-visible,
         parseError:'Impossible d\u2019analyser la r\u00e9ponse \u2014 essayez de reformuler.', genericError:'Une erreur est survenue. R\u00e9essayez.',
         undoUpdate:'Annuler la derni\u00e8re mise \u00e0 jour', weekHoursLabel:'Heures disponibles par semaine',
         editIncome:'Modifier les mois', doneEditing:'Termin\u00e9',
-        fiscalYearChangedMsg:"Le d\u00e9but de l'exercice a chang\u00e9. Que faire des donn\u00e9es de revenus existantes\u00a0?",
+        fiscalYearChangedMsg:"Le d\u00e9but de l\u2019exercice a chang\u00e9. Que faire des donn\u00e9es de revenus existantes\u00a0?",
         fiscalYearKeep:'Conserver les donn\u00e9es',
         fiscalYearReset:'R\u00e9initialiser \u00e0 z\u00e9ro',
+        projectionTitle:'Projection',
+        projectionDesc:'Choisissez comment le chiffre de projection de fin d\u2019ann\u00e9e est calcul\u00e9.',
+        projectionMonthlyDesc:'Extrapolation depuis vos revenus r\u00e9els\u00a0: cumul ann\u00e9e\u00a0+\u00a0(moyenne\u00a0\u00d7\u00a0mois restants)',
+        projectionPipelineLabel:'Total pipeline',
+        projectionPipelineDesc:'Additionne la valeur des \u00e9tapes du pipeline s\u00e9lectionn\u00e9es',
+        projectionInclude:'Inclure dans la projection\u00a0:',
+        projectionAlwaysIncluded:'toujours inclus',
+        saveBtn:'Enregistrer',
+        savedConfirm:'Enregistr\u00e9',
         tourWelcomeTitle:'Bienvenue dans Groundwork',
         tourWelcomeText:"Groundwork est votre tableau de bord professionnel pour freelances \u2014 suivez votre pipeline, vos revenus, votre temps et vos prochaines actions en un seul endroit.\nVos donn\u00e9es restent sur cet appareil \u2014 rien n\u2019est envoy\u00e9 ailleurs. Le tableau de bord fonctionne hors ligne et sans IA. L\u2019IA est optionnelle\u00a0: avec une cl\u00e9 API, vous pouvez mettre \u00e0 jour vos donn\u00e9es en langue naturelle.",
         tourPipelineTitle:'Pipeline',
@@ -1435,9 +1467,18 @@ button:focus-visible,
         parseError:'Antwort konnte nicht verarbeitet werden \u2014 bitte umformulieren.', genericError:'Etwas ist schiefgelaufen. Bitte erneut versuchen.',
         undoUpdate:'Letzte Aktualisierung r\u00fcckg\u00e4ngig machen', weekHoursLabel:'Verf\u00fcgbare Stunden pro Woche',
         editIncome:'Monate bearbeiten', doneEditing:'Fertig',
-        fiscalYearChangedMsg:'Das Geschäftsjahr hat sich geändert. Was soll mit den vorhandenen Einkommensdaten passieren?',
+        fiscalYearChangedMsg:'Das Gesch\u00e4ftsjahr hat sich ge\u00e4ndert. Was soll mit den vorhandenen Einkommensdaten passieren?',
         fiscalYearKeep:'Daten behalten',
-        fiscalYearReset:'Auf null zurücksetzen',
+        fiscalYearReset:'Auf null zur\u00fccksetzen',
+        projectionTitle:'Prognose',
+        projectionDesc:'W\u00e4hlen Sie, wie die Jahresendeprognose berechnet wird.',
+        projectionMonthlyDesc:'Extrapoliert aus Ihren tats\u00e4chlichen Einnahmen: JTD\u00a0+\u00a0(Durchschnitt\u00a0\u00d7\u00a0verbleibende Monate)',
+        projectionPipelineLabel:'Pipeline-Gesamt',
+        projectionPipelineDesc:'Summiert den Wert der ausgew\u00e4hlten Pipeline-Phasen',
+        projectionInclude:'In Prognose einbeziehen:',
+        projectionAlwaysIncluded:'immer enthalten',
+        saveBtn:'Speichern',
+        savedConfirm:'Gespeichert',
         tourWelcomeTitle:'Willkommen bei Groundwork',
         tourWelcomeText:'Groundwork ist Ihr pers\u00f6nliches Business-Dashboard f\u00fcr Freelancer \u2014 verwalten Sie Ihre Pipeline, Einnahmen, Zeit und n\u00e4chste Schritte an einem Ort.\nIhre Daten bleiben auf diesem Ger\u00e4t \u2014 nichts wird \u00fcbertragen. Das Dashboard funktioniert vollst\u00e4ndig offline und ohne KI. KI ist optional: Mit einem API-Schl\u00fcssel k\u00f6nnen Sie Ihre Daten in nat\u00fcrlicher Sprache aktualisieren.',
         tourPipelineTitle:'Pipeline',
@@ -1479,9 +1520,18 @@ button:focus-visible,
         parseError:'Impossibile analizzare la risposta \u2014 prova a riformulare.', genericError:'Qualcosa \u00e8 andato storto. Riprova.',
         undoUpdate:'Annulla ultimo aggiornamento', weekHoursLabel:'Ore settimanali disponibili',
         editIncome:'Modifica mesi', doneEditing:'Fatto',
-        fiscalYearChangedMsg:"L'inizio dell'anno fiscale è cambiato. Cosa fare con i dati di reddito esistenti?",
+        fiscalYearChangedMsg:"L\u2019inizio dell\u2019anno fiscale \u00e8 cambiato. Cosa fare con i dati di reddito esistenti?",
         fiscalYearKeep:'Mantieni i dati',
         fiscalYearReset:'Azzera i dati',
+        projectionTitle:'Proiezione',
+        projectionDesc:'Scegli come viene calcolata la previsione di fine anno.',
+        projectionMonthlyDesc:'Estrapolazione dai dati reali: YTD\u00a0+\u00a0(media\u00a0\u00d7\u00a0mesi rimanenti)',
+        projectionPipelineLabel:'Totale pipeline',
+        projectionPipelineDesc:'Somma il valore delle fasi del pipeline selezionate',
+        projectionInclude:'Includi nella proiezione:',
+        projectionAlwaysIncluded:'sempre incluso',
+        saveBtn:'Salva',
+        savedConfirm:'Salvato',
         tourWelcomeTitle:'Benvenuto in Groundwork',
         tourWelcomeText:"Groundwork \u00e8 il tuo dashboard aziendale personale per freelance \u2014 gestisci il tuo pipeline, le entrate, il tempo e le prossime azioni in un unico posto.\nI tuoi dati rimangono su questo dispositivo \u2014 nulla viene inviato altrove. Il dashboard funziona completamente offline e senza IA. L\u2019IA \u00e8 opzionale: con una chiave API puoi aggiornare i dati in linguaggio naturale.",
         tourPipelineTitle:'Pipeline',
@@ -1741,6 +1791,56 @@ button:focus-visible,
         </div>
       </div>
 
+      <div class="settings-section" id="section-projection">
+        <button class="settings-section-header" type="button" aria-expanded="false" aria-controls="section-projection-body">
+          <span id="proj-title"></span>
+          <span class="settings-chevron">&#9654;</span>
+        </button>
+        <div class="settings-section-body" id="section-projection-body">
+          <div class="settings-section-body-inner">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px;" id="proj-desc"></p>
+
+          <div style="margin-bottom:16px;">
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:8px;">
+              <input type="radio" name="projectionMode" value="formula" id="proj-mode-formula" style="margin-top:2px;accent-color:var(--teal-text);cursor:pointer;">
+              <span style="font-size:13px;"><strong id="proj-monthly-label"></strong><br><span style="color:var(--muted);font-size:12px;" id="proj-monthly-desc"></span></span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+              <input type="radio" name="projectionMode" value="pipeline" id="proj-mode-pipeline" style="margin-top:2px;accent-color:var(--teal-text);cursor:pointer;">
+              <span style="font-size:13px;"><strong id="proj-pipeline-label"></strong><br><span style="color:var(--muted);font-size:12px;" id="proj-pipeline-desc"></span></span>
+            </label>
+          </div>
+
+          <div id="proj-pipeline-options" style="margin-left:28px;margin-bottom:8px;">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:8px;" id="proj-include-label"></p>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px;">
+              <input type="checkbox" id="proj-inc-leads" style="accent-color:var(--teal-text);cursor:pointer;">
+              <span style="font-size:13px;" id="proj-leads-label"></span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px;">
+              <input type="checkbox" id="proj-inc-proposals" style="accent-color:var(--teal-text);cursor:pointer;">
+              <span style="font-size:13px;" id="proj-proposals-label"></span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:default;opacity:0.55;">
+              <input type="checkbox" checked disabled style="accent-color:var(--teal-text);">
+              <span style="font-size:13px;" id="proj-active-label"></span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:default;opacity:0.55;">
+              <input type="checkbox" checked disabled style="accent-color:var(--teal-text);">
+              <span style="font-size:13px;" id="proj-invoiced-label"></span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:default;opacity:0.55;">
+              <input type="checkbox" checked disabled style="accent-color:var(--teal-text);">
+              <span style="font-size:13px;" id="proj-paid-label"></span>
+            </label>
+          </div>
+
+          <button class="btn-sm" id="proj-save" style="margin-top:8px;"></button>
+          <span id="proj-saved-msg" style="display:none;margin-left:8px;font-size:12px;color:var(--teal-text);"></span>
+          </div>
+        </div>
+      </div>
+
       <div class="settings-section" id="section-data">
         <button class="settings-section-header" type="button" aria-expanded="false" aria-controls="section-data-body">
           <span>Data</span>
@@ -1892,6 +1992,45 @@ button:focus-visible,
     applyHighContrast(e.target.checked);
     if (incomeChart) { incomeChart.destroy(); incomeChart = null; }
     if (document.getElementById('income')?.querySelector('canvas')) renderIncome();
+  });
+
+  // Projection settings — populate text and state
+  document.getElementById('proj-title').textContent = t('projectionTitle');
+  document.getElementById('proj-desc').textContent = t('projectionDesc');
+  document.getElementById('proj-monthly-label').textContent = t('monthlyAverage');
+  document.getElementById('proj-monthly-desc').textContent = t('projectionMonthlyDesc');
+  document.getElementById('proj-pipeline-label').textContent = t('projectionPipelineLabel');
+  document.getElementById('proj-pipeline-desc').textContent = t('projectionPipelineDesc');
+  document.getElementById('proj-include-label').textContent = t('projectionInclude');
+  document.getElementById('proj-leads-label').textContent = t('leads');
+  document.getElementById('proj-proposals-label').textContent = t('proposals');
+  document.getElementById('proj-active-label').textContent = t('active') + ' \u2014 ' + t('projectionAlwaysIncluded');
+  document.getElementById('proj-invoiced-label').textContent = t('invoiced') + ' \u2014 ' + t('projectionAlwaysIncluded');
+  document.getElementById('proj-paid-label').textContent = t('paid') + ' \u2014 ' + t('projectionAlwaysIncluded');
+  document.getElementById('proj-save').textContent = t('saveBtn');
+  document.getElementById('proj-saved-msg').textContent = t('savedConfirm');
+  const projSettings = DATA.freelancer.projectionSettings || { mode: 'formula', includeLeads: false, includeProposals: true };
+  document.getElementById('proj-mode-' + projSettings.mode).checked = true;
+  document.getElementById('proj-inc-leads').checked = !!projSettings.includeLeads;
+  document.getElementById('proj-inc-proposals').checked = !!projSettings.includeProposals;
+  document.getElementById('proj-pipeline-options').style.display = projSettings.mode === 'pipeline' ? '' : 'none';
+  document.querySelectorAll('input[name="projectionMode"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      document.getElementById('proj-pipeline-options').style.display = radio.value === 'pipeline' ? '' : 'none';
+    });
+  });
+  document.getElementById('proj-save').addEventListener('click', () => {
+    const mode = document.querySelector('input[name="projectionMode"]:checked').value;
+    DATA.freelancer.projectionSettings = {
+      mode,
+      includeLeads: document.getElementById('proj-inc-leads').checked,
+      includeProposals: document.getElementById('proj-inc-proposals').checked,
+    };
+    saveData(DATA);
+    renderIncome();
+    const msg = document.getElementById('proj-saved-msg');
+    msg.style.display = 'inline';
+    setTimeout(() => { msg.style.display = 'none'; }, 2000);
   });
 
   // Export
@@ -2662,6 +2801,7 @@ button:focus-visible,
           DATA.pipeline[toCol].push(item);
           saveData(DATA);
           renderPipeline();
+          renderIncome();
           if (toCol === 'paid') {
             const paidCards = document.querySelectorAll('[data-col="paid"] .pipeline-card');
             const last = paidCards[paidCards.length - 1];
@@ -2751,6 +2891,7 @@ button:focus-visible,
           DATA.pipeline[colKey].splice(idx, 1);
           saveData(DATA);
           renderPipeline();
+          renderIncome();
           close();
         });
       }
@@ -2780,6 +2921,7 @@ button:focus-visible,
         }
         saveData(DATA);
         renderPipeline();
+        renderIncome();
         close();
       });
     }
@@ -2800,7 +2942,16 @@ button:focus-visible,
       const best = filled.length ? Math.max(...filled) : 0;
       const avg = filled.length ? Math.round(filled.reduce((s, v) => s + v, 0) / filled.length) : 0;
       const remainingMonths = 12 - filled.length;
-      const projected = ytd + Math.round(avg * remainingMonths);
+      const projSettings = DATA.freelancer.projectionSettings || { mode: 'formula', includeLeads: false, includeProposals: true };
+      let projected;
+      if (projSettings.mode === 'pipeline') {
+        const pipeSum = key => (DATA.pipeline[key] || []).reduce((s, i) => s + (i.value || 0), 0);
+        projected = pipeSum('active') + pipeSum('invoiced') + pipeSum('paid');
+        if (projSettings.includeLeads) projected += pipeSum('leads');
+        if (projSettings.includeProposals) projected += pipeSum('proposals');
+      } else {
+        projected = ytd + Math.round(avg * remainingMonths);
+      }
 
       const monthInputs = displayMonths.map((m, i) => {
         const canonIdx = (fiscalStart + i) % 12;
