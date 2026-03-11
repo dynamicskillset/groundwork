@@ -29,7 +29,11 @@ Take the guided tour on first load — it walks you through each section in abou
 
 ## Updating to a new version
 
-Download the new `groundwork-x.x.x.html` file and open it — your data is stored in the browser, not the file, so everything carries over automatically. You can delete the old file once you've confirmed the new one looks right.
+1. In your current version, go to **Settings → Data → Export JSON** and save the backup file
+2. Download the new `groundwork-x.x.x.html` and open it
+3. Go to **Settings → Data → Import** and load your backup
+
+Your data should carry over automatically in Chrome and Edge (all local files share the same storage). In Firefox it won't — each file has separate storage — so the export step is essential. When in doubt, always export first.
 
 ## Languages
 
