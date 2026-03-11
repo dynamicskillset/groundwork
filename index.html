@@ -26,10 +26,50 @@
       color: var(--text);
       line-height: 1.6;
     }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 10;
+    }
+    .nav-brand {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+    .nav-links { display: flex; gap: 12px; align-items: center; }
+    .btn {
+      display: inline-block;
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--teal); color: #2e3440; border-color: var(--teal); }
+    .btn-secondary { background: transparent; color: var(--text); border-color: var(--border); }
   </style>
 </head>
 <body>
-  <nav><!-- nav --></nav>
+  <nav>
+    <a class="nav-brand" href="#">Groundwork</a>
+    <div class="nav-links">
+      <a class="btn btn-secondary" href="https://github.com/dynamicskillset/groundwork" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn btn-primary" href="https://github.com/dynamicskillset/groundwork/releases/latest" target="_blank" rel="noopener">Download</a>
+    </div>
+  </nav>
   <main>
     <section id="hero"><!-- hero --></section>
     <section id="callouts"><!-- callouts --></section>
