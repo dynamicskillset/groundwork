@@ -1315,7 +1315,7 @@ button:focus-visible,
         projectionDesc:'Choose how the Projected year-end figure is calculated.',
         projectionMonthlyDesc:'Extrapolates from your income actuals: YTD\u00a0+\u00a0(average\u00a0\u00d7\u00a0remaining months)',
         projectionPipelineLabel:'Pipeline total',
-        projectionPipelineDesc:'Sums the value of selected pipeline stages',
+        projectionPipelineDesc:'YTD income plus the value of selected outstanding pipeline stages',
         projectionInclude:'Include in projection:',
         projectionAlwaysIncluded:'always included',
         saveBtn:'Save',
@@ -1368,7 +1368,7 @@ button:focus-visible,
         projectionDesc:'Elige c\u00f3mo se calcula la proyecci\u00f3n de fin de a\u00f1o.',
         projectionMonthlyDesc:'Extrapola a partir de tus ingresos reales: YTD\u00a0+\u00a0(media\u00a0\u00d7\u00a0meses restantes)',
         projectionPipelineLabel:'Total del pipeline',
-        projectionPipelineDesc:'Suma el valor de las etapas del pipeline seleccionadas',
+        projectionPipelineDesc:'Ingresos YTD m\u00e1s el valor de las etapas del pipeline pendientes seleccionadas',
         projectionInclude:'Incluir en la proyecci\u00f3n:',
         projectionAlwaysIncluded:'siempre incluido',
         saveBtn:'Guardar',
@@ -1421,7 +1421,7 @@ button:focus-visible,
         projectionDesc:'Choisissez comment le chiffre de projection de fin d\u2019ann\u00e9e est calcul\u00e9.',
         projectionMonthlyDesc:'Extrapolation depuis vos revenus r\u00e9els\u00a0: cumul ann\u00e9e\u00a0+\u00a0(moyenne\u00a0\u00d7\u00a0mois restants)',
         projectionPipelineLabel:'Total pipeline',
-        projectionPipelineDesc:'Additionne la valeur des \u00e9tapes du pipeline s\u00e9lectionn\u00e9es',
+        projectionPipelineDesc:'Revenus YTD plus la valeur des \u00e9tapes du pipeline en cours s\u00e9lectionn\u00e9es',
         projectionInclude:'Inclure dans la projection\u00a0:',
         projectionAlwaysIncluded:'toujours inclus',
         saveBtn:'Enregistrer',
@@ -1474,7 +1474,7 @@ button:focus-visible,
         projectionDesc:'W\u00e4hlen Sie, wie die Jahresendeprognose berechnet wird.',
         projectionMonthlyDesc:'Extrapoliert aus Ihren tats\u00e4chlichen Einnahmen: JTD\u00a0+\u00a0(Durchschnitt\u00a0\u00d7\u00a0verbleibende Monate)',
         projectionPipelineLabel:'Pipeline-Gesamt',
-        projectionPipelineDesc:'Summiert den Wert der ausgew\u00e4hlten Pipeline-Phasen',
+        projectionPipelineDesc:'YTD-Einnahmen plus den Wert der ausgew\u00e4hlten offenen Pipeline-Phasen',
         projectionInclude:'In Prognose einbeziehen:',
         projectionAlwaysIncluded:'immer enthalten',
         saveBtn:'Speichern',
@@ -1527,7 +1527,7 @@ button:focus-visible,
         projectionDesc:'Scegli come viene calcolata la previsione di fine anno.',
         projectionMonthlyDesc:'Estrapolazione dai dati reali: YTD\u00a0+\u00a0(media\u00a0\u00d7\u00a0mesi rimanenti)',
         projectionPipelineLabel:'Totale pipeline',
-        projectionPipelineDesc:'Somma il valore delle fasi del pipeline selezionate',
+        projectionPipelineDesc:'Entrate YTD pi\u00f9 il valore delle fasi del pipeline in corso selezionate',
         projectionInclude:'Includi nella proiezione:',
         projectionAlwaysIncluded:'sempre incluso',
         saveBtn:'Salva',
@@ -1829,10 +1829,6 @@ button:focus-visible,
               <input type="checkbox" checked disabled style="accent-color:var(--teal-text);">
               <span style="font-size:13px;" id="proj-invoiced-label"></span>
             </label>
-            <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:default;opacity:0.55;">
-              <input type="checkbox" checked disabled style="accent-color:var(--teal-text);">
-              <span style="font-size:13px;" id="proj-paid-label"></span>
-            </label>
           </div>
 
           <button class="btn-sm" id="proj-save" style="margin-top:8px;"></button>
@@ -2006,7 +2002,6 @@ button:focus-visible,
   document.getElementById('proj-proposals-label').textContent = t('proposals');
   document.getElementById('proj-active-label').textContent = t('active') + ' \u2014 ' + t('projectionAlwaysIncluded');
   document.getElementById('proj-invoiced-label').textContent = t('invoiced') + ' \u2014 ' + t('projectionAlwaysIncluded');
-  document.getElementById('proj-paid-label').textContent = t('paid') + ' \u2014 ' + t('projectionAlwaysIncluded');
   document.getElementById('proj-save').textContent = t('saveBtn');
   document.getElementById('proj-saved-msg').textContent = t('savedConfirm');
   const projSettings = DATA.freelancer.projectionSettings || { mode: 'formula', includeLeads: false, includeProposals: true };
@@ -2946,7 +2941,7 @@ button:focus-visible,
       let projected;
       if (projSettings.mode === 'pipeline') {
         const pipeSum = key => (DATA.pipeline[key] || []).reduce((s, i) => s + (i.value || 0), 0);
-        projected = pipeSum('active') + pipeSum('invoiced') + pipeSum('paid');
+        projected = ytd + pipeSum('active') + pipeSum('invoiced');
         if (projSettings.includeLeads) projected += pipeSum('leads');
         if (projSettings.includeProposals) projected += pipeSum('proposals');
       } else {
