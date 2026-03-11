@@ -60,6 +60,28 @@
     .btn:hover { opacity: 0.85; }
     .btn-primary { background: var(--teal); color: #2e3440; border-color: var(--teal); }
     .btn-secondary { background: transparent; color: var(--text); border-color: var(--border); }
+    #hero {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 80px 24px 64px;
+}
+.hero-title {
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
+.hero-title span { color: var(--teal); }
+.hero-desc {
+  font-size: 18px;
+  color: var(--muted);
+  max-width: 540px;
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+.hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-ctas .btn { font-size: 15px; padding: 10px 22px; }
   </style>
 </head>
 <body>
@@ -71,7 +93,14 @@
     </div>
   </nav>
   <main>
-    <section id="hero"><!-- hero --></section>
+    <section id="hero">
+  <h1 class="hero-title">A dashboard for<br><span>freelancers</span></h1>
+  <p class="hero-desc">A personal dashboard for freelancers. Runs in your browser. Keeps your data.</p>
+  <div class="hero-ctas">
+    <a class="btn btn-primary" href="https://github.com/dynamicskillset/groundwork/releases/latest" target="_blank" rel="noopener">Download v1.1.0</a>
+    <a class="btn btn-secondary" href="https://github.com/dynamicskillset/groundwork" target="_blank" rel="noopener">View on GitHub</a>
+  </div>
+</section>
     <section id="callouts"><!-- callouts --></section>
     <section id="how"><!-- how --></section>
   </main>
