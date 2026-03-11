@@ -72,6 +72,9 @@ AGPL-3.0. If you distribute or host a modified version, you must make the source
 
 ## Changelog
 
+### v1.1.1
+- Fix: pipeline projection now correctly calculates YTD + outstanding stages (Active + Invoiced), rather than a raw pipeline sum that could show less than already-earned income
+
 ### v1.1.0
 - New: choose how the Projected year-end figure is calculated — monthly average extrapolation (default) or pipeline total
 - Pipeline total mode lets you include or exclude Leads and Proposals; Active, Invoiced, and Paid are always counted
