@@ -82,6 +82,23 @@
 }
 .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
 .hero-ctas .btn { font-size: 15px; padding: 10px 22px; }
+#callouts {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px 64px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+}
+.callout-icon { font-size: 20px; margin-bottom: 10px; }
+.callout h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.callout p { font-size: 13px; color: var(--muted); line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -101,7 +118,23 @@
     <a class="btn btn-secondary" href="https://github.com/dynamicskillset/groundwork" target="_blank" rel="noopener">View on GitHub</a>
   </div>
 </section>
-    <section id="callouts"><!-- callouts --></section>
+    <section id="callouts">
+  <div class="callout">
+    <div class="callout-icon">🔒</div>
+    <h3>Stays on your device</h3>
+    <p>No account, no server, no sync. Your data lives in your browser and nowhere else.</p>
+  </div>
+  <div class="callout">
+    <div class="callout-icon">📄</div>
+    <h3>One file</h3>
+    <p>Download it, open it in a browser, and it works. Nothing to install or configure.</p>
+  </div>
+  <div class="callout">
+    <div class="callout-icon">🧭</div>
+    <h3>Built for solo work</h3>
+    <p>Pipeline, income, time, and next actions — everything in one place, nothing you don't need.</p>
+  </div>
+</section>
     <section id="how"><!-- how --></section>
   </main>
   <footer><!-- footer --></footer>
