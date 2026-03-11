@@ -99,6 +99,30 @@
 .callout-icon { font-size: 20px; margin-bottom: 10px; }
 .callout h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
 .callout p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+#how {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+#how h2 { font-size: 20px; font-weight: 600; margin-bottom: 24px; }
+.steps { display: flex; flex-direction: column; gap: 16px; }
+.step { display: flex; gap: 16px; align-items: flex-start; }
+.step-num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--teal-light);
+  color: var(--teal);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+.step p { font-size: 15px; color: var(--muted); line-height: 1.5; }
+.step p strong { color: var(--text); font-weight: 500; }
   </style>
 </head>
 <body>
@@ -135,7 +159,23 @@
     <p>Pipeline, income, time, and next actions — everything in one place, nothing you don't need.</p>
   </div>
 </section>
-    <section id="how"><!-- how --></section>
+    <section id="how">
+  <h2>How it works</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <p><strong>Download the HTML file</strong> from the releases page on GitHub.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <p><strong>Open it in your browser</strong> — Chrome, Firefox, or Safari all work.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <p><strong>Switch from Demo to Live mode</strong> and start adding your own data.</p>
+    </div>
+  </div>
+</section>
   </main>
   <footer><!-- footer --></footer>
 </body>
